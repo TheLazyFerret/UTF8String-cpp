@@ -10,7 +10,7 @@ project(ferret-lib
 # Create the compile_commands.json (mostly for clangd).
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(lib/utf8String)
+add_subdirectory(lib/utf8string)
 
 # Special rules for DEBUG builds.
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -19,5 +19,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   # Ensure the Boost library for testing exist.
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   # Add the testing subdirectories.
-  add_subdirectory(test/utf8String)
+  add_subdirectory(test/utf8string)
 endif()
