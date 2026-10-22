@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <string_view>
+#include <string>
 
 namespace utf8_string {
 
@@ -23,6 +24,8 @@ public:
   constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default;          // Copy assignment.
   constexpr UTF8Symbol(UTF8Symbol&&) = default;                          // Move constructor.
   constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;               // Move assignment.
+
+  std::string to_string() const noexcept;
 
 private:
   static UTF8Symbol decode_str(std::string_view str);
