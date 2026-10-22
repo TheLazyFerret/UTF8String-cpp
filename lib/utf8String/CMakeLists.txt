@@ -2,6 +2,7 @@
 
 add_library(UTF8String STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/utf8_string.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/utf8_symbol.cpp
 )
 
 # Mostly compile warnings.
