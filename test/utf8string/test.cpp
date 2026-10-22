@@ -10,7 +10,8 @@
 #include <string_view>
 
 constexpr std::string_view EXAMPLE_UNICODE = "ඞ";
-constexpr std::string_view EXAMPLE_ASCII_SYMBOL = "a";
+constexpr char EXAMPLE_ASCII = 'a';
+constexpr char EXAMPLE_BAD_ASCII = 0xFFFF;
 
 /// Generates a bad code unicode.
 std::string bad_unicode() noexcept {
@@ -23,20 +24,18 @@ std::string bad_unicode() noexcept {
 using namespace utf8_string;
 
 // Check the constructor, and implictly the parser.
-BOOST_AUTO_TEST_CASE(UTF8Symbol_constructor_test1) {
+BOOST_AUTO_TEST_CASE(UTF8Symbol_UNICODE_constructor_test1) {
   const UTF8Symbol symbol(EXAMPLE_UNICODE);
 
-  BOOST_ASSERT(symbol.to_string() == EXAMPLE_UNICODE);
-}
-
-BOOST_AUTO_TEST_CASE(UTF8Symbol_constructor_test2) {
-  const UTF8Symbol symbol(EXAMPLE_ASCII_SYMBOL);
-
-  BOOST_ASSERT(symbol.to_string() == EXAMPLE_ASCII_SYMBOL);
+  BOOST_TEST(symbol.to_string() == EXAMPLE_UNICODE);
 }
 
 BOOST_AUTO_TEST_CASE(UTF8Symbol_constructor_test3) {
   const std::string bad_symbol = bad_unicode();
 
   BOOST_CHECK_THROW(UTF8Symbol{bad_symbol}, std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8Symbol_ASCII_constructor) {
+  BOOST_CHECK_THROW(UTF8Symbol{EXAMPLE_BAD_ASCII}, std::invalid_argument);
 }
