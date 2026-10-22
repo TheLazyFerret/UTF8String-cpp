@@ -1,6 +1,8 @@
 //! Inner representation of each UTF-8 symbol.
 //! This header is also included by utf8_string.hpp, but can be used standalone.
 
+#pragma once
+
 #include <array>
 #include <cstddef>
 #include <string_view>
