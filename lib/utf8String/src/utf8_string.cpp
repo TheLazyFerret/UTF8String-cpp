@@ -43,7 +43,7 @@ UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
     return result;
   }
   // The unicode symbol is thre byte long.
-  else if (test_8byte(first_char, F_BYTE_MASK[2], F_BYTE_MASK[2])) {
+  else if (test_8byte(first_char, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
     CHECK_SIZE(str.size(), 3, ERROR_MESSAGE)
     const char8_t second_char = static_cast<char8_t>(str.at(1));
     const char8_t third_char = static_cast<char8_t>(str.at(2));
