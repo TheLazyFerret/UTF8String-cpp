@@ -19,4 +19,5 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   # Ensure the Boost library for testing exist.
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   # Add the testing subdirectories.
+  add_subdirectory(test/utf8String)
 endif()
