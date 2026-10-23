@@ -42,11 +42,13 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_ASCII_constructor) {
   BOOST_CHECK_THROW(UTF8Symbol{EXAMPLE_BAD_ASCII}, std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(UTF8Symbol_extract_test) {
-  const std::string str = "   ඞ";
+BOOST_AUTO_TEST_CASE(UTF8Symbol_stream_extract_test) {
+  const std::string str = "   ඞඞඞ";
   std::stringstream sstream(str);
-  UTF8Symbol symbol;
-  sstream >> symbol;
+  UTF8Symbol symbol1, symbol2, symbol3;
+  sstream >> symbol1 >> symbol2 >> symbol3;
   BOOST_TEST((!sstream.fail() || !sstream.eof()));
-  BOOST_TEST(symbol.to_string() == EXAMPLE_UNICODE);
+  BOOST_TEST(symbol1.to_string() == EXAMPLE_UNICODE);
+  BOOST_TEST(symbol2.to_string() == EXAMPLE_UNICODE);
+  BOOST_TEST(symbol3.to_string() == EXAMPLE_UNICODE);
 }
