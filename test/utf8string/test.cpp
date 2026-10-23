@@ -1,15 +1,14 @@
 //! Test of the UTF8String library.
 
-#include "utf8_symbol.hpp"
 #define BOOST_TEST_MODULE utf8StringTest
 #include <boost/test/unit_test.hpp>
 
 #include "utf8_string.hpp"
 
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <sstream>
 
 constexpr std::string_view EXAMPLE_UNICODE = "ඞ";
 constexpr char EXAMPLE_ASCII = 'a';
@@ -51,4 +50,10 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_stream_extract_test) {
   BOOST_TEST(symbol1.to_string() == EXAMPLE_UNICODE);
   BOOST_TEST(symbol2.to_string() == EXAMPLE_UNICODE);
   BOOST_TEST(symbol3.to_string() == EXAMPLE_UNICODE);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8String_constructor) {
+  const std::string str_og = "   ඞඞඞ";
+  UTF8String str(str_og);
+  BOOST_TEST((str_og == str.to_string()));
 }
