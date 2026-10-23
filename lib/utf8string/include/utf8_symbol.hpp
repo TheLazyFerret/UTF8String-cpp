@@ -5,10 +5,12 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <iostream>
+#include <utility>
 
 namespace utf8_string {
 
@@ -34,6 +36,7 @@ public:
   constexpr char to_char() const;
 
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
+  constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
   friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
@@ -65,4 +68,24 @@ constexpr char UTF8Symbol::to_char() const {
   return inner_data.front();
 }
 
+/// Return as a pair the inner data of the Symbol. Uses a pair so it doesn't allocate anything.
+constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> UTF8Symbol::data() const noexcept {
+  return std::make_pair(inner_data, static_cast<size_t>(size));
+}
+
 } // namespace utf8_string
+
+/// Struct for allowing use std::format (and also std::print or std::println).
+template <> struct std::formatter<utf8_string::UTF8Symbol> {
+  /// Parse the options of the formatter (what is inside the {}).
+  constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+
+  /// Return the formatted value of the UTF8Symbol.
+  /// Actually returns an Iterator.
+  auto format(const utf8_string::UTF8Symbol& sym, std::format_context& ctx) const {
+    return std::format_to(ctx.out(), "{}", sym.to_string());
+  }
+
+  [[maybe_unused]] bool is_hex = false;
+  [[maybe_unused]] bool is_bin = false;
+};
