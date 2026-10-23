@@ -26,11 +26,11 @@ constexpr std::expected<size_t, std::string_view> bytes_of_utf8(char byte) noexc
   const char8_t aux = static_cast<char8_t>(byte);
   if (test_8byte(aux, F_BYTE_MASK[0], F_BYTE_RESULT[0])) {
     return 1;
-  } else if (test_8byte(aux, F_BYTE_MASK[1], F_BYTE_MASK[1])) {
+  } else if (test_8byte(aux, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
     return 2;
-  } else if (test_8byte(aux, F_BYTE_MASK[2], F_BYTE_MASK[2])) {
+  } else if (test_8byte(aux, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
     return 3;
-  } else if (test_8byte(aux, F_BYTE_MASK[3], F_BYTE_MASK[3])) {
+  } else if (test_8byte(aux, F_BYTE_MASK[3], F_BYTE_RESULT[3])) {
     return 4;
   }
   return std::unexpected(ERROR_MESSAGE);
