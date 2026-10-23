@@ -1,5 +1,6 @@
 //! Inner representation of each UTF-8 symbol.
 //! This header is also included by utf8_string.hpp, but can be used standalone.
+//! One of my objetives is also to be as much constexpr and allocation free as I can.
 
 #pragma once
 
@@ -14,7 +15,9 @@
 
 namespace utf8_string {
 
+/// The size used for storing a single UTF8 symbol.
 constexpr size_t UTF8_SYMBOL_SIZE = 4;
+// The default UTF8 symbol value. For the default constructor, size will be one, so will be equivalent to '\0'.
 constexpr std::array<char8_t, UTF8_SYMBOL_SIZE> EMPTY_UTF8_SYMBOL = {'\0', '\0', '\0', '\0'};
 
 /// Represents a single UTF-8 symbol.
@@ -40,6 +43,9 @@ public:
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
   friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
+
+  constexpr friend bool operator==(const UTF8Symbol&, const UTF8Symbol&) noexcept;
+  constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;
 
 private:
   static UTF8Symbol decode_str(std::string_view str);
@@ -72,6 +78,22 @@ constexpr char UTF8Symbol::to_char() const {
 constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> UTF8Symbol::data() const noexcept {
   return std::make_pair(inner_data, static_cast<size_t>(size));
 }
+
+/// Compare if two UTF8 symbols are equal.
+constexpr bool operator==(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept {
+  if (lhs.size != rhs.size) {
+    return false;
+  }
+  for (size_t i = 0; i < lhs.size; ++i) {
+    if (lhs.inner_data[i] != rhs.inner_data[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Compare if two UTF8 are not equal.
+constexpr bool operator!=(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept { return !(lhs == rhs); }
 
 } // namespace utf8_string
 
