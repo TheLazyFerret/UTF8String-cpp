@@ -29,6 +29,9 @@ UTF8String::UTF8String(std::string_view str) {
 /// It should never fail, unless allocation error or stuff like that.
 std::string UTF8String::to_string() const noexcept {
   std::string result;
+  if (inner_data.size() == 0) {
+    return result; // Directly return an empty string.
+  }
   result.reserve(inner_data.size() * UTF8_SYMBOL_SIZE);
   for (const auto& symbol : inner_data) {
     result += symbol.to_string();
