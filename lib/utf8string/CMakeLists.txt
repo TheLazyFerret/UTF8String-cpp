@@ -19,5 +19,4 @@ target_compile_features(UTF8String PRIVATE cxx_std_23)
 # One public, the other is the private implementation.
 target_include_directories(UTF8String
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

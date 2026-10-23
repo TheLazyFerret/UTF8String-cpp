@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cstddef>
+#include <expected>
 #include <format>
 #include <iostream>
 #include <stdexcept>
@@ -21,20 +22,45 @@ constexpr size_t UTF8_SYMBOL_SIZE = 4;
 // The default UTF8 symbol value. For the default constructor, size will be one, so will be equivalent to '\0'.
 constexpr std::array<char8_t, UTF8_SYMBOL_SIZE> EMPTY_UTF8_SYMBOL = {'\0', '\0', '\0', '\0'};
 
+constexpr std::array<char8_t, 4> F_BYTE_MASK = {0b10000000, 0b11100000, 0b11110000, 0b11111000};
+constexpr std::array<char8_t, 4> F_BYTE_RESULT = {0b00000000, 0b11000000, 0b11100000, 0b11110000};
+constexpr char8_t NF_BYTE_MASK = 0b11000000;
+constexpr char8_t NF_BYTE_RESULT = 0b10000000;
+
+/// Test a byte, ANDing the mask and comparing with the expected result.
+constexpr bool test_8byte(char8_t byte, char8_t mask, char8_t result) noexcept { return (byte & mask) == result; }
+
+/// Test the byte (pressumable the first in a UTF-8 symbol) and return the number of
+/// bytes the symbol is composed.
+constexpr std::expected<size_t, std::string_view> bytes_of_utf8(char byte) noexcept {
+  constexpr std::string_view ERROR_MESSAGE = "Not encoded UTF8 byte.";
+  const char8_t aux = static_cast<char8_t>(byte);
+  if (test_8byte(aux, F_BYTE_MASK[0], F_BYTE_RESULT[0])) {
+    return 1;
+  } else if (test_8byte(aux, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
+    return 2;
+  } else if (test_8byte(aux, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
+    return 3;
+  } else if (test_8byte(aux, F_BYTE_MASK[3], F_BYTE_RESULT[3])) {
+    return 4;
+  }
+  return std::unexpected(ERROR_MESSAGE);
+}
+
 /// Represents a single UTF-8 symbol.
 /// UTF-8 has a variable length, something that is hard to implement at compile time.
 /// Due doing tons of allocations for the sake of saving a few bytes is very unnecesary,
 /// decided to go with an array of 4 bytes.
 class UTF8Symbol {
 public:
-  constexpr UTF8Symbol() : inner_data(EMPTY_UTF8_SYMBOL), size(1) {}     // Default constructor.
-  explicit UTF8Symbol(std::string_view str) { *this = decode_str(str); } // Multi-byte string constructor.
-  constexpr explicit UTF8Symbol(char ascii_char);                        // Constructor for ASCII characters.
-  ~UTF8Symbol() = default;                                               // Destructor.
-  constexpr UTF8Symbol(const UTF8Symbol&) = default;                     // Copy constructor.
-  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default;          // Copy assignment.
-  constexpr UTF8Symbol(UTF8Symbol&&) = default;                          // Move constructor.
-  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;               // Move assignment.
+  constexpr UTF8Symbol() : inner_data(EMPTY_UTF8_SYMBOL), size(1) {}               // Default constructor.
+  constexpr explicit UTF8Symbol(std::string_view str) { *this = decode_str(str); } // Multi-byte string constructor.
+  constexpr explicit UTF8Symbol(char ascii_char);                                  // Constructor for ASCII characters.
+  ~UTF8Symbol() = default;                                                         // Destructor.
+  constexpr UTF8Symbol(const UTF8Symbol&) = default;                               // Copy constructor.
+  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default;                    // Copy assignment.
+  constexpr UTF8Symbol(UTF8Symbol&&) = default;                                    // Move constructor.
+  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;                         // Move assignment.
 
   std::string to_string() const noexcept;
   constexpr char to_char() const;
@@ -50,7 +76,7 @@ public:
   constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;
 
 private:
-  static UTF8Symbol decode_str(std::string_view str);
+  constexpr static UTF8Symbol decode_str(std::string_view str);
 
   // Attributes.
   std::array<char8_t, UTF8_SYMBOL_SIZE> inner_data;
@@ -96,6 +122,74 @@ constexpr bool operator==(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept
 
 /// Compare if two UTF8 are not equal.
 constexpr bool operator!=(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept { return !(lhs == rhs); }
+
+#define CHECK_SIZE(size, expected_size, msg)                                                                           \
+  if (size != expected_size) {                                                                                         \
+    throw std::invalid_argument(msg);                                                                                  \
+  }
+
+/// Byte parser for an UTF-8 codified unicode symbol.
+/// It is allocation free.
+/// It is important that the str only has one UTF8 symbol. Will throw otherwise.
+/// It is also important to note that is not possible build '\0' from this constructor.
+constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
+  const char* const ERROR_MESSAGE = "The raw str is not a UTF-8 symbol.";
+  if (!(str.size() >= 1 && str.size() <= 4)) {
+    throw std::invalid_argument(ERROR_MESSAGE);
+  }
+  UTF8Symbol result;
+  const char8_t first_char = static_cast<char8_t>(str.front());
+  // The unicode symbol is two byte long.
+  if (test_8byte(first_char, F_BYTE_MASK[0], F_BYTE_RESULT[0])) {
+    CHECK_SIZE(str.size(), 1, ERROR_MESSAGE)
+    result.inner_data = {first_char, '\0', '\0', '\0'};
+    result.size = 1;
+    return result;
+  }
+  // The unicode symbol is two byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
+    CHECK_SIZE(str.size(), 2, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    if (test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, '\0', '\0'};
+    result.size = 2;
+    return result;
+  }
+  // The unicode symbol is thre byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
+    CHECK_SIZE(str.size(), 3, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    const char8_t third_char = static_cast<char8_t>(str.at(2));
+    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, third_char, '\0'};
+    result.size = 3;
+    return result;
+  }
+  // The unicode symbol is four byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[3], F_BYTE_RESULT[3])) {
+    CHECK_SIZE(str.size(), 4, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    const char8_t third_char = static_cast<char8_t>(str.at(2));
+    const char8_t fourth_char = static_cast<char8_t>(str.at(3));
+    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(fourth_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, third_char, fourth_char};
+    result.size = 4;
+    return result;
+  }
+  // The first byte is bad coded.
+  throw std::invalid_argument(ERROR_MESSAGE);
+}
+
+#undef CHECK_SIZE
 
 } // namespace utf8_string
 
