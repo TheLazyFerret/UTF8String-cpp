@@ -147,3 +147,10 @@ std::istream& utf8_string::operator>>(std::istream& is, UTF8Symbol& symbol) noex
   symbol.size = byte_size;
   return is;
 }
+
+/// Returns the inner data (the bytes), allocating a vector with the exact
+/// same size of the inner data.
+std::vector<char8_t> UTF8Symbol::data_vec() const noexcept {
+  std::vector<char8_t> result{inner_data.begin(), inner_data.begin() + size};
+  return result;
+}

@@ -12,6 +12,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace utf8_string {
 
@@ -40,6 +41,7 @@ public:
 
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
   constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
+  std::vector<char8_t> data_vec() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
   friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
