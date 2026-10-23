@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <iostream>
 
 namespace utf8_string {
 
@@ -31,6 +32,11 @@ public:
 
   std::string to_string() const noexcept;
   constexpr char to_char() const;
+
+  constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
+
+  friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
+  friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
 
 private:
   static UTF8Symbol decode_str(std::string_view str);
