@@ -61,8 +61,8 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_to_integer_test) {
   static constexpr std::uint32_t unicode_2_value = static_cast<std::uint32_t>('a');
   const UTF8Symbol symbol_1(unicode_1);
   const UTF8Symbol symbol_2(unicode_2);
-  BOOST_TEST(unicode_1_value == symbol_1.to_number());
-  BOOST_TEST(unicode_2_value == symbol_2.to_number());
+  BOOST_TEST(unicode_1_value == symbol_1.to_integer());
+  BOOST_TEST(unicode_2_value == symbol_2.to_integer());
 }
 
 BOOST_AUTO_TEST_CASE(UTF8String_constructor) {

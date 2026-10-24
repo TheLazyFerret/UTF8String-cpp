@@ -65,7 +65,7 @@ public:
   constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;
 
   constexpr char to_char() const;
-  constexpr std::uint32_t to_number() const noexcept;
+  constexpr std::uint32_t to_integer() const noexcept;
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
 
   std::string to_string() const noexcept;
@@ -193,7 +193,7 @@ constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
 
 #undef CHECK_SIZE
 
-constexpr std::uint32_t UTF8Symbol::to_number() const noexcept {
+constexpr std::uint32_t UTF8Symbol::to_integer() const noexcept {
   assert(size > 0 && size <= 4);
   std::uint32_t value = 0;
   for (size_t i = 0; i < size; ++i) {
