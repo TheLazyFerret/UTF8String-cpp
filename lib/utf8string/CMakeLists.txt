@@ -13,7 +13,7 @@ target_compile_options(UTF8String PRIVATE
 )
 
 # Set the C++ version used for compiling.
-target_compile_features(UTF8String PRIVATE cxx_std_23)
+target_compile_features(UTF8String PRIVATE cxx_std_20)
 
 # Set the include directories.
 # One public, the other is the private implementation.

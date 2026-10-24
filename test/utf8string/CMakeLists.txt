@@ -8,7 +8,7 @@ target_link_libraries(UTF8String_test PRIVATE
   UTF8String
 )
 
-target_compile_features(UTF8String_test PRIVATE cxx_std_23)
+target_compile_features(UTF8String_test PRIVATE cxx_std_20)
 
 # Add the test for cmake and ctest.
 add_test(NAME UTF8StringTest
