@@ -16,6 +16,7 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include <type_traits>
 
 namespace utf8_string {
 
@@ -89,6 +90,9 @@ private:
   std::array<char8_t, UTF8_SYMBOL_SIZE> inner_data = {'\0', '\0', '\0', '\0'};
   unsigned char size = 1;
 };
+
+// A few compile time check to ensure all the requirements I want are at compile time.
+static_assert(std::is_trivially_copyable<UTF8Symbol>(), "UTF8Symbol is not trivially copyable");
 
 /// Constexpr constructor fot ASCII char.
 /// It can throw an exception if the char is negative.
