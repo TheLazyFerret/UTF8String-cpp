@@ -77,6 +77,7 @@ public:
 
   constexpr friend bool operator==(const UTF8Symbol&, const UTF8Symbol&) noexcept;
   constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;
+  constexpr friend bool operator<(const UTF8Symbol&, const UTF8Symbol&) noexcept;
 
 private:
   constexpr static UTF8Symbol decode_str(std::string_view str);
@@ -125,6 +126,19 @@ constexpr bool operator==(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept
 
 /// Compare if two UTF8 are not equal.
 constexpr bool operator!=(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept { return !(lhs == rhs); }
+
+/// Do the numeric comparison for lhs < rhs.
+constexpr bool operator<(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept {
+  // Comparable due the UTF8Symbol always has the exact bit size.
+  // Never a more significant byte will be 0.
+  if (lhs.size < rhs.size) {
+    return true;
+  } else if (lhs.size > rhs.size) {
+    return false;
+  }
+  // Both has the same size. Therefore need to compare the number.
+  return lhs.to_integer() < rhs.to_integer();
+}
 
 #define CHECK_SIZE(size, expected_size, msg)                                                                           \
   if (size != expected_size) {                                                                                         \
