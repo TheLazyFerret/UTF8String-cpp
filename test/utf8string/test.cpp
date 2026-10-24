@@ -69,9 +69,13 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_comparison_test) {
   const UTF8Symbol unicode_1("a");
   const UTF8Symbol unicode_2("ʘ");
   const UTF8Symbol unicode_3("𰜩");
-  BOOST_TEST(unicode_1 < unicode_2);
-  BOOST_TEST(unicode_2 < unicode_3);
-  BOOST_TEST(!(unicode_3 < unicode_3));
+  BOOST_TEST((unicode_1 < unicode_2) == true);
+  BOOST_TEST((unicode_2 < unicode_3) == true);
+  BOOST_TEST((unicode_1 <= unicode_1) == true);
+  BOOST_TEST((unicode_1 <= unicode_1) == true);
+  BOOST_TEST((unicode_3 >= unicode_2) == true);
+  BOOST_TEST((unicode_1 > unicode_3) == false);
+  BOOST_TEST((unicode_1 > unicode_1) == false);
 }
 
 BOOST_AUTO_TEST_CASE(UTF8String_constructor) {
