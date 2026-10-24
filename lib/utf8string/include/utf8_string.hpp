@@ -25,6 +25,7 @@ public:
 
   std::string to_string() const noexcept;
 
+  constexpr size_t size() const noexcept { return inner_data.size(); }
   constexpr void push_back(const UTF8Symbol& symbol) noexcept { inner_data.push_back(symbol); }
   constexpr void push_back(UTF8Symbol&& symbol) noexcept { inner_data.push_back(std::move(symbol)); }
 
