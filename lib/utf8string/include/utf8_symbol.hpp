@@ -257,3 +257,10 @@ template <> struct std::formatter<utf8_string::UTF8Symbol> {
   [[maybe_unused]] bool is_hex = false;
   [[maybe_unused]] bool is_bin = false;
 };
+
+/// Support for std::hash. Basically just convert it to an integer an uses its hash.
+template <> struct std::hash<utf8_string::UTF8Symbol> {
+  std::size_t operator()(const utf8_string::UTF8Symbol& symbol) const noexcept {
+    return std::hash<std::uint32_t>{}(symbol.to_integer());
+  }
+};
