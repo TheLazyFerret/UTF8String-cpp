@@ -65,6 +65,15 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_to_integer_test) {
   BOOST_TEST(unicode_2_value == symbol_2.to_integer());
 }
 
+BOOST_AUTO_TEST_CASE(UTF8Symbol_comparison_test) {
+  const UTF8Symbol unicode_1("a");
+  const UTF8Symbol unicode_2("ʘ");
+  const UTF8Symbol unicode_3("𰜩");
+  BOOST_TEST(unicode_1 < unicode_2);
+  BOOST_TEST(unicode_2 < unicode_3);
+  BOOST_TEST(!(unicode_3 < unicode_3));
+}
+
 BOOST_AUTO_TEST_CASE(UTF8String_constructor) {
   const std::string str_og = "   ඞඞඞ";
   UTF8String str(str_og);
