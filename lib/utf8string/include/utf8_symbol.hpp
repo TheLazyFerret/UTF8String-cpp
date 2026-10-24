@@ -50,20 +50,23 @@ constexpr short bytes_of_utf8(char byte) noexcept {
 /// decided to go with an array of 4 bytes.
 class UTF8Symbol {
 public:
-  constexpr UTF8Symbol() = default;                             // Default constructor.
-  explicit UTF8Symbol(std::string_view str);                    // Multi-byte string constructor.
-  constexpr explicit UTF8Symbol(char ascii_char);               // Constructor for ASCII characters.
-  constexpr ~UTF8Symbol() = default;                            // Destructor.
-  constexpr UTF8Symbol(const UTF8Symbol&) = default;            // Copy constructor.
-  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default; // Copy assignment.
-  constexpr UTF8Symbol(UTF8Symbol&&) = default;                 // Move constructor.
-  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;      // Move assignment.
+  constexpr UTF8Symbol() = default;
+  /// Build an UTF8Symbol from a string view containing a single UTF8 encoded character.
+  /// It is also important to note that is not possible build '\0' from this constructor.
+  /// If you need '\0' use the default empty constructor, or build from character.
+  constexpr explicit UTF8Symbol(std::string_view str) { *this = decode_str(str); }
+  constexpr explicit UTF8Symbol(char ascii_char);
+  constexpr ~UTF8Symbol() = default;
+  constexpr UTF8Symbol(const UTF8Symbol&) = default;
+  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default;
+  constexpr UTF8Symbol(UTF8Symbol&&) = default;
+  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;
 
   constexpr char to_char() const;
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
 
   std::string to_string() const noexcept;
-  std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
+  constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
   std::vector<char8_t> data_vec() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
@@ -73,7 +76,7 @@ public:
   constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;
 
 private:
-  static UTF8Symbol decode_str(std::string_view str);
+  constexpr static UTF8Symbol decode_str(std::string_view str);
 
   // Attributes. By default it is equivalent to the '\0' ASCII character.
   std::array<char8_t, UTF8_SYMBOL_SIZE> inner_data = {'\0', '\0', '\0', '\0'};
@@ -88,6 +91,11 @@ constexpr UTF8Symbol::UTF8Symbol(char ascii_char) {
   }
   inner_data.front() = ascii_char;
   size = 1;
+}
+
+/// Return as a pair the inner data of the Symbol. Uses a pair so it doesn't allocate anything.
+constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> UTF8Symbol::data() const noexcept {
+  return std::make_pair(inner_data, static_cast<size_t>(size));
 }
 
 /// Return the inner value as a normal c-char.
@@ -114,6 +122,73 @@ constexpr bool operator==(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept
 
 /// Compare if two UTF8 are not equal.
 constexpr bool operator!=(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept { return !(lhs == rhs); }
+
+#define CHECK_SIZE(size, expected_size, msg)                                                                           \
+  if (size != expected_size) {                                                                                         \
+    throw std::invalid_argument(msg);                                                                                  \
+  }
+
+/// Byte parser for an UTF-8 codified unicode symbol.
+/// It is allocation free.
+/// It is important that the str only has one UTF8 symbol. Will throw otherwise.
+constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
+  const char* const ERROR_MESSAGE = "The raw str is not a UTF-8 symbol.";
+  if (!(str.size() >= 1 && str.size() <= 4)) {
+    throw std::invalid_argument(ERROR_MESSAGE);
+  }
+  UTF8Symbol result;
+  const char8_t first_char = static_cast<char8_t>(str.front());
+  // The unicode symbol is two byte long.
+  if (test_8byte(first_char, F_BYTE_MASK[0], F_BYTE_RESULT[0])) {
+    CHECK_SIZE(str.size(), 1, ERROR_MESSAGE)
+    result.inner_data = {first_char, '\0', '\0', '\0'};
+    result.size = 1;
+    return result;
+  }
+  // The unicode symbol is two byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
+    CHECK_SIZE(str.size(), 2, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    if (test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, '\0', '\0'};
+    result.size = 2;
+    return result;
+  }
+  // The unicode symbol is thre byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
+    CHECK_SIZE(str.size(), 3, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    const char8_t third_char = static_cast<char8_t>(str.at(2));
+    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, third_char, '\0'};
+    result.size = 3;
+    return result;
+  }
+  // The unicode symbol is four byte long.
+  else if (test_8byte(first_char, F_BYTE_MASK[3], F_BYTE_RESULT[3])) {
+    CHECK_SIZE(str.size(), 4, ERROR_MESSAGE)
+    const char8_t second_char = static_cast<char8_t>(str.at(1));
+    const char8_t third_char = static_cast<char8_t>(str.at(2));
+    const char8_t fourth_char = static_cast<char8_t>(str.at(3));
+    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
+        !test_8byte(fourth_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      throw std::invalid_argument(ERROR_MESSAGE);
+    }
+    result.inner_data = {first_char, second_char, third_char, fourth_char};
+    result.size = 4;
+    return result;
+  }
+  // The first byte is bad coded.
+  throw std::invalid_argument(ERROR_MESSAGE);
+}
+
+#undef CHECK_SIZE
 
 } // namespace utf8_string
 
