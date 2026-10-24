@@ -1,16 +1,16 @@
 //! Test of the UTF8String library.
 
-#include "utf8_symbol.hpp"
-#include <cstdint>
 #define BOOST_TEST_MODULE utf8StringTest
 #include <boost/test/unit_test.hpp>
 
 #include "utf8_string.hpp"
+#include "utf8_symbol.hpp"
 
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <cstdint>
 
 constexpr std::string_view EXAMPLE_UNICODE = "ඞ";
 constexpr char EXAMPLE_ASCII = 'a';
