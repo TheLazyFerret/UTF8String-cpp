@@ -1,5 +1,7 @@
 //! Test of the UTF8String library.
 
+#include "utf8_symbol.hpp"
+#include <cstdint>
 #define BOOST_TEST_MODULE utf8StringTest
 #include <boost/test/unit_test.hpp>
 
@@ -50,6 +52,17 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_stream_extract_test) {
   BOOST_TEST(symbol1.to_string() == EXAMPLE_UNICODE);
   BOOST_TEST(symbol2.to_string() == EXAMPLE_UNICODE);
   BOOST_TEST(symbol3.to_string() == EXAMPLE_UNICODE);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8Symbol_to_integer_test) {
+  static constexpr std::string_view unicode_1 = "𰜩";
+  static constexpr std::uint32_t unicode_1_value = 0xF0B09CA9;
+  static constexpr std::string_view unicode_2 = "a";
+  static constexpr std::uint32_t unicode_2_value = static_cast<std::uint32_t>('a');
+  const UTF8Symbol symbol_1(unicode_1);
+  const UTF8Symbol symbol_2(unicode_2);
+  BOOST_TEST(unicode_1_value == symbol_1.to_number());
+  BOOST_TEST(unicode_2_value == symbol_2.to_number());
 }
 
 BOOST_AUTO_TEST_CASE(UTF8String_constructor) {
