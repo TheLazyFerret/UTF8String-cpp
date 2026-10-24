@@ -35,14 +35,14 @@ constexpr UTF8String::UTF8String(std::string_view str) {
   // Reserve the worst case memory needed to hold the converted string.
   inner_data.reserve(str.size());
   for (size_t i = 0; i < str.size(); ++i) {
-    const auto size_result = bytes_of_utf8(str[i]);
+    const auto size = bytes_of_utf8(str[i]);
     // If fails, it is because the parameter is bad encoded.
-    if (!size_result) {
-      throw std::invalid_argument(std::string(size_result.error()));
+    if (size <= 0) {
+      throw std::invalid_argument("Bad encoded symbol.");
     }
-    const std::string_view slice = str.substr(i, size_result.value());
+    const std::string_view slice = str.substr(i, size);
     inner_data.emplace_back(slice);
-    i += size_result.value() - 1; // Need to substract 1 because skips 1 byte otherwise.
+    i += size - 1; // Need to substract 1 because skips 1 byte otherwise.
   }
 }
 
