@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.30)
 
 # Project declaration.
-project(ferret-lib
+project(UTF8String-cpp
   VERSION 0.0    # Version of the program.
   LANGUAGES CXX  # Programming language of the project.
 )
