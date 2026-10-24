@@ -8,21 +8,25 @@
 
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace utf8_string {
 
 class UTF8String {
 public:
-  constexpr UTF8String() noexcept = default;                    // Default constructor.
-  explicit UTF8String(std::string_view);                        // Constructor from string_view.
-  ~UTF8String() = default;                                      // Destructor.
-  constexpr UTF8String(const UTF8String&) = default;            // Copy constructor.
-  constexpr UTF8String& operator=(const UTF8String&) = default; // Copy assignment.
-  constexpr UTF8String(UTF8String&&) = default;                 // Move constructor.
-  constexpr UTF8String& operator=(UTF8String&&) = default;      // Move assignment.
+  constexpr UTF8String() noexcept = default;
+  explicit UTF8String(std::string_view);
+  ~UTF8String() = default;
+  constexpr UTF8String(const UTF8String&) = default;
+  constexpr UTF8String& operator=(const UTF8String&) = default;
+  constexpr UTF8String(UTF8String&&) = default;
+  constexpr UTF8String& operator=(UTF8String&&) = default;
 
   std::string to_string() const noexcept;
+
+  constexpr void push_back(const UTF8Symbol& symbol) noexcept { inner_data.push_back(symbol); }
+  constexpr void push_back(UTF8Symbol&& symbol) noexcept { inner_data.push_back(std::move(symbol)); }
 
 private:
   std::vector<UTF8Symbol> inner_data;
