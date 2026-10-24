@@ -62,12 +62,12 @@ public:
   constexpr UTF8Symbol(UTF8Symbol&&) = default;                                    // Move constructor.
   constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;                         // Move assignment.
 
-  std::string to_string() const noexcept;
+  constexpr std::string to_string() const noexcept;
   constexpr char to_char() const;
 
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
   constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
-  std::vector<char8_t> data_vec() const noexcept;
+  constexpr std::vector<char8_t> data_vec() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
   friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
@@ -191,6 +191,25 @@ constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
 
 #undef CHECK_SIZE
 
+/// Convert the UTF8 Symbol into a string.
+/// Important to note that the resulted string will only contain one symbol,
+/// but the size will be >= 1
+constexpr std::string UTF8Symbol::to_string() const noexcept {
+  std::string result;
+  result.reserve(static_cast<size_t>(size));
+  for (unsigned char i = 0; i < this->size; ++i) {
+    result.push_back(static_cast<char>(inner_data[i]));
+  }
+  return result;
+}
+
+/// Returns the inner data (the bytes), allocating a vector with the exact
+/// same size of the inner data.
+constexpr std::vector<char8_t> UTF8Symbol::data_vec() const noexcept {
+  std::vector<char8_t> result{inner_data.begin(), inner_data.begin() + size};
+  return result;
+}
+
 } // namespace utf8_string
 
 /// Struct for allowing use std::format (and also std::print or std::println).
@@ -200,7 +219,7 @@ template <> struct std::formatter<utf8_string::UTF8Symbol> {
 
   /// Return the formatted value of the UTF8Symbol.
   /// Actually returns an Iterator.
-  auto format(const utf8_string::UTF8Symbol& sym, std::format_context& ctx) const {
+  constexpr auto format(const utf8_string::UTF8Symbol& sym, std::format_context& ctx) const {
     return std::format_to(ctx.out(), "{}", sym.to_string());
   }
 
