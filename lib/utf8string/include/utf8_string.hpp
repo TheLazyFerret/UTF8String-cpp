@@ -10,14 +10,16 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include <stdexcept>
+
 
 namespace utf8_string {
 
 class UTF8String {
 public:
   constexpr UTF8String() noexcept = default;
-  explicit UTF8String(std::string_view);
-  ~UTF8String() = default;
+  constexpr explicit UTF8String(std::string_view);
+  constexpr ~UTF8String() = default;
   constexpr UTF8String(const UTF8String&) = default;
   constexpr UTF8String& operator=(const UTF8String&) = default;
   constexpr UTF8String(UTF8String&&) = default;
@@ -32,5 +34,23 @@ public:
 private:
   std::vector<UTF8Symbol> inner_data;
 };
+
+/// Construct a new UTF8String from a str.
+/// It only does as much one allocation for holding the resulting value.
+constexpr UTF8String::UTF8String(std::string_view str) {
+  // Reserve the worst case memory needed to hold the converted string.
+  inner_data.reserve(str.size());
+  for (size_t i = 0; i < str.size(); ++i) {
+    const auto size = bytes_of_utf8(str[i]);
+    // If fails, it is because the parameter is bad encoded.
+    if (size <= 0) {
+      throw std::invalid_argument("Bad encoded symbol.");
+    }
+    const std::string_view slice = str.substr(i, static_cast<size_t>(size));
+    inner_data.emplace_back(slice);
+    i += static_cast<size_t>(size) - 1; // Need to substract 1 because skips 1 byte otherwise.
+  }
+  inner_data.shrink_to_fit();
+}
 
 } // namespace utf8_string
