@@ -1,6 +1,7 @@
 //! Inner representation of each UTF-8 symbol.
 //! This header is also included by utf8_string.hpp, but can be used standalone.
 //! One of my objetives is also to be as much constexpr and allocation free as I can.
+//! Also, it is guaranteed that always will point to a valid UTF8 character.
 
 #pragma once
 
@@ -49,19 +50,19 @@ constexpr short bytes_of_utf8(char byte) noexcept {
 /// decided to go with an array of 4 bytes.
 class UTF8Symbol {
 public:
-  constexpr UTF8Symbol() = default;                                      // Default constructor.
-  explicit UTF8Symbol(std::string_view str) { *this = decode_str(str); } // Multi-byte string constructor.
-  constexpr explicit UTF8Symbol(char ascii_char);                        // Constructor for ASCII characters.
-  ~UTF8Symbol() = default;                                               // Destructor.
-  constexpr UTF8Symbol(const UTF8Symbol&) = default;                     // Copy constructor.
-  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default;          // Copy assignment.
-  constexpr UTF8Symbol(UTF8Symbol&&) = default;                          // Move constructor.
-  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;               // Move assignment.
+  constexpr UTF8Symbol() = default;                             // Default constructor.
+  explicit UTF8Symbol(std::string_view str);                    // Multi-byte string constructor.
+  constexpr explicit UTF8Symbol(char ascii_char);               // Constructor for ASCII characters.
+  constexpr ~UTF8Symbol() = default;                            // Destructor.
+  constexpr UTF8Symbol(const UTF8Symbol&) = default;            // Copy constructor.
+  constexpr UTF8Symbol& operator=(const UTF8Symbol&) = default; // Copy assignment.
+  constexpr UTF8Symbol(UTF8Symbol&&) = default;                 // Move constructor.
+  constexpr UTF8Symbol& operator=(UTF8Symbol&&) = default;      // Move assignment.
+
+  constexpr char to_char() const;
+  constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
 
   std::string to_string() const noexcept;
-  constexpr char to_char() const;
-
-  constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
   std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
   std::vector<char8_t> data_vec() const noexcept;
 
@@ -80,7 +81,7 @@ private:
 };
 
 /// Constexpr constructor fot ASCII char.
-/// It can throw an exception if the char is negative ()
+/// It can throw an exception if the char is negative.
 constexpr UTF8Symbol::UTF8Symbol(char ascii_char) {
   if (ascii_char < 0) {
     throw std::invalid_argument("The ASCII character has a not valid value.");

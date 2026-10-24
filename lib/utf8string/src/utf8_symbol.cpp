@@ -10,6 +10,11 @@
 
 using namespace utf8_string;
 
+/// Build an UTF8Symbol from a string view containing a single UTF8 encoded character.
+/// It is also important to note that is not possible build '\0' from this constructor.
+/// If you need '\0' use the default empty constructor, or build from character.
+UTF8Symbol::UTF8Symbol(std::string_view str) { *this = decode_str(str); }
+
 /// Send to the stream the useful bytes inside the object.
 std::ostream& utf8_string::operator<<(std::ostream& os, const UTF8Symbol& symbol) {
   for (size_t i = 0; i < static_cast<size_t>(symbol.size); ++i) {
@@ -34,11 +39,12 @@ std::istream& utf8_string::operator>>(std::istream& is, UTF8Symbol& symbol) noex
       continue;
     }
     // Parse the first byte. To know the size of the UTF8 symbol.
-    byte_size = bytes_of_utf8(aux);
-    if (byte_size <= 0) {
+    const auto aux_size = bytes_of_utf8(aux);
+    if (aux_size <= 0) {
       is.setstate(std::ios::failbit);
       return is;
     }
+    byte_size = static_cast<size_t>(aux_size);
     break;
   }
   assert(byte_size <= buffer.size());
@@ -95,7 +101,6 @@ std::string UTF8Symbol::to_string() const noexcept {
 /// Byte parser for an UTF-8 codified unicode symbol.
 /// It is allocation free.
 /// It is important that the str only has one UTF8 symbol. Will throw otherwise.
-/// It is also important to note that is not possible build '\0' from this constructor.
 UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
   const char* const ERROR_MESSAGE = "The raw str is not a UTF-8 symbol.";
   if (!(str.size() >= 1 && str.size() <= 4)) {

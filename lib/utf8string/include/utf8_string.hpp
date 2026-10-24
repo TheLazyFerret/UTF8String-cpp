@@ -40,9 +40,9 @@ constexpr UTF8String::UTF8String(std::string_view str) {
     if (size <= 0) {
       throw std::invalid_argument("Bad encoded symbol.");
     }
-    const std::string_view slice = str.substr(i, size);
+    const std::string_view slice = str.substr(i, static_cast<size_t>(size));
     inner_data.emplace_back(slice);
-    i += size - 1; // Need to substract 1 because skips 1 byte otherwise.
+    i += static_cast<size_t>(size) - 1; // Need to substract 1 because skips 1 byte otherwise.
   }
 }
 
