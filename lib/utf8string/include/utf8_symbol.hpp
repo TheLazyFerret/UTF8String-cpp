@@ -166,7 +166,7 @@ constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
   else if (test_8byte(first_char, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
     CHECK_SIZE(str.size(), 2, ERROR_MESSAGE)
     const char8_t second_char = static_cast<char8_t>(str.at(1));
-    if (test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
       throw std::invalid_argument(ERROR_MESSAGE);
     }
     result.inner_data = {first_char, second_char, '\0', '\0'};
