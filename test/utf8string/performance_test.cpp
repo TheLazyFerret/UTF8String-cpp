@@ -17,6 +17,7 @@ constexpr std::string_view unicode_20 = "⌳ⱹ⚙♤⯶✜Ⳓ⣴⇮⏳↿⃄⺨
 constexpr std::string_view unicode_50 = "⫙≨⎒ⳕ⫕Ⲑ⫋⻍↨⤥↧⠪⽝Ⳏ⊇⍉’⓽⡣⸑⽵✕⒜❶⹓ⷱ⃵⋈⡎✲⡝⟙⎰⠍◐⿮➛⸻∆⃩⨴⚴⩺␌➡⫉⣲ⵈⲚ⨌";
 constexpr std::string_view unicode_100 ="⹳⤽⩳⦐⁮ⱏ⺁ⅰⶅ⊷ⶉ⹾◄⬼┄⠢⠊⦬ⶮ⏑≉⦡⫱▾✚⤧⧪ⶊ⮰⇾∝ⵅ⬙⁜⟲⯜⢺⽇␄ⳓ➬⾥⨨⒀⤑⍍⬹⚱⧅␜⁢Ⓝⴍⳮ⏛⬞⫮⬊⅏⨁ ⴶ⟺❇☞ⰵ⒬ⱽ⼆┠⦮⾜⋷♴⌻Ⳡ⾕⌼⹱⾈◂ⶫⓤⵒ⎿⼻⭗⩻ⅶ➫⧳⽈⻼⳽⇎ⅨℷⲂ┵⩈";
 constexpr std::string_view unicode_500 = "⊂␾⪽⽓↲⬷②⓵⻠⌅⻶⽌ℾ₷⋪⎪⌔⹆▴⊏⟼ⴆ➞♆↫⨃⺾ⱇ↠⦘⎲➖Ⲷ⛌⭳ⷯ⨹Ⓝ⯪▁↤➉⾮►⡢Ⱂ⅟⨻▵⠀↢Ⰷ⍕╳⺒ⲇ⫂⭏⻍ⷤ⑍⮰ⱛ⚒┸⥌☸⢣⦙ₚ⛉⍺⴦⌠ⷽ≐❓⋀⺋⫥℅≖₄⎑⤁⟛⼪❏╞⁴⭙☱⻴↽♔⇗⦖⤚☊∳⌻⬧⭨⑘ ⺰⛰⇎⺗⪕⷗➿⚨ⓜ✷⍳⨇⹭ⱋ⑶⃜⊬⦛∏Ⓚ⭿⪴╄Ⅽ⧴⩷⻣ⵗ⑄➰ⓦ⬢➌⵰➝⤜␘❺ⱷ⣥∰⊖⹰⢮Ⅵⲁ₼⼋⎇ⲥⶸ⸝⾖⒳Ⓚ⹧⚓⽥⛄↱⁚⒚⡹Ⱂ℣℺⮙⃾⭏⧚⠲⋮♽⼸▆⭵⟈⧨⳧⚭⾾ⰽ⹚▓⡯☮⺝⧉⤨∡∘ⷉ⫹ⶮ⍍⋳⳱⌇≻⨨Ⱋ◖ⅇ⇚⍨⻧⺮⇹⧽⯬ⅎ⭷⯬◸⬕⏆―⚵Ⳇ⬇⸠◇⤁ⵁ ⫆⦲♹⛉⟭⮔Ⓚ⩧↙⤔♉♽⍜⫶⍥✫₇⫽✩⡤▰⭉⯠⎸➔⺔ⵢ␙⃀⤝⒏⭨ⰿ⣶⮌⣇₴⏅⢧⓪∱⿡⡣⃭⎫⚧Ⲹ⠃ℝ⸗└┾⇧ⵄ⹼⦢⵩ⶫⓠ▀ⱋ⽰⤙⤝ⷽ⅖┎⹥⚎⾓⟎⍯⣴⥞⟳℻⣡₤⡤⽂➲ⷃ⺰⏿⃷⾸⎊✃Ⱌ⋽⁊≧⚽☾⇝∄⎦⃎⓱₃⮢⶘⎘⣠℣⩝␡⦹➈⽾⏑⓪⧎⒠⡞ⴤⰹ╷⵭⯖ ⓓⓋ₡⊿ℴ⾻⟢⌢⨒ⴟ╙ⷰℝⅩ⮐⍰❌⟆ⱂ⃉⛱⽝⽨⽧☞⠦⣃⊊⒲⻱⬵⎟⇜⯄⏾▸⤍⺊⿑≞⎚Ⱃ⠁⇴ⴼ≀⫦╣ⷙⵖ⢸ℨ⇟⇑₍⫏ⷀ❰⭹⠧℥⁜⽈↲➎⤽⏋⨁⣌⚱⹅❮⨐⼦✬⦼⪧⤍⮏⿺⠖⵽∷⨍✸⿗⏌⥟⍊⫗❓⢯✁⛉⏞▭⠙⧶Ⱋ⻰―⣍⁉⥩❻⃬⁻Ⱨ⟼⒛⫙⑝⚬≅⤧⭝⸈≝∌↜Ⳙ⨸ⳟ➱♜≬₏⥞⏟⠺╗⅗❽⹃⢪⤁⺪⭤₏⪲ⶏ▘♍ⰾ┎⽙⦏⦽⇜";
+//constexpr std::string_view unicode_500 = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu";
 // clang-format on
 
 #define TEST(test_string, number_of_test)                                                                              \
