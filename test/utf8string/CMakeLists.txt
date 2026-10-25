@@ -14,3 +14,7 @@ target_compile_features(UTF8String_test PRIVATE cxx_std_20)
 add_test(NAME UTF8StringTest
   COMMAND UTF8String_test
 )
+
+add_executable(UTF8String_dumb ${CMAKE_CURRENT_SOURCE_DIR}/dumb.cpp)
+target_link_libraries(UTF8String_dumb PRIVATE UTF8String)
+target_compile_features(UTF8String_dumb PRIVATE cxx_std_20)
