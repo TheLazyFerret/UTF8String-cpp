@@ -11,6 +11,7 @@ using namespace utf8_string;
 /// Return a std::string with the bytes of each symbol hold.
 /// It needs to loop all symbols, and all bytes of all symbols, so it is not a cheap conversion.
 /// It should never fail, unless allocation error or stuff like that.
+/// Should do as much 2 allocations in total (one for reserve and one for shrink).
 std::string UTF8String::to_string() const noexcept {
   std::string result;
   if (inner_data.size() == 0) {
