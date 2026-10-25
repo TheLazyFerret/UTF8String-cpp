@@ -40,6 +40,7 @@ public:
   constexpr const UTF8Symbol& back() const { return inner_data.at(inner_data.size() - 1); }
 
   // Capacity methods.
+  constexpr size_t utf8_byte_size() const noexcept;
   constexpr size_t size() const noexcept { return inner_data.size(); }
   constexpr size_t length() const noexcept { return inner_data.size(); }
   constexpr bool empty() const noexcept { return inner_data.empty(); }
@@ -59,7 +60,7 @@ public:
   constexpr friend UTF8String operator+(const UTF8String&, const UTF8String&);
   constexpr friend UTF8String operator+(const UTF8String&, UTF8Symbol);
 
-  std::string to_string() const noexcept;
+  constexpr std::string to_string() const;
 
 private:
   std::vector<UTF8Symbol> inner_data;
@@ -112,5 +113,38 @@ constexpr UTF8String operator+(const UTF8String& lhs, UTF8Symbol rhs) {
   result.inner_data.push_back(rhs);
   return result;
 }
+
+/// Return the exact number of bytes required for saving this utf8
+/// in a contiguous byte container (like a string, or a vector of char).
+/// Loops for each symbol to gets its size.
+constexpr size_t UTF8String::utf8_byte_size() const noexcept {
+  size_t result = 0;
+  for (const auto& symbol : inner_data) {
+    result += symbol.byte_size();
+  }
+  return result;
+}
+
+/// Return a std::string with the bytes of each symbol hold.
+/// It needs to loop all symbols, and all bytes of all symbols, so it is not a cheap conversion.
+/// It should never fail, unless allocation error or stuff like that.
+///
+/// Use a relative conservative ammount of bytes reserved, so most UTF8Strings should only need one allocation.
+constexpr std::string UTF8String::to_string() const {
+  std::string result;
+  if (inner_data.size() == 0) {
+    return result; // Directly return an empty string.
+  }
+  result.reserve(inner_data.size() * 2);
+  for (const auto& symbol : inner_data) {
+    const auto symbol_data = symbol.data();
+    const char* aux = reinterpret_cast<const char*>(symbol_data.first.data());
+    result.insert(result.end(), aux, aux + symbol_data.second);
+  }
+  //result.shrink_to_fit();
+  //std::cout << result.size() << " " << result.capacity() << std::endl;
+  return result;
+}
+
 
 } // namespace utf8_string
