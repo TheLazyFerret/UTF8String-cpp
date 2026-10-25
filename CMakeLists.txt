@@ -13,11 +13,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(lib/utf8string)
 
 # Special rules for DEBUG builds.
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   # Generate the necessary metadata for using ctest.
   enable_testing()
   # Ensure the Boost library for testing exist.
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   # Add the testing subdirectories.
   add_subdirectory(test/utf8string)
-endif()
+#endif()

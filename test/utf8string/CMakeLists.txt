@@ -15,6 +15,9 @@ add_test(NAME UTF8StringTest
   COMMAND UTF8String_test
 )
 
-add_executable(UTF8String_dumb ${CMAKE_CURRENT_SOURCE_DIR}/dumb.cpp)
-target_link_libraries(UTF8String_dumb PRIVATE UTF8String)
-target_compile_features(UTF8String_dumb PRIVATE cxx_std_20)
+# Special custom executable for testing performance and other things.
+add_executable(UTF8String_performance 
+  ${CMAKE_CURRENT_SOURCE_DIR}/performance_test.cpp
+)
+target_link_libraries(UTF8String_performance PRIVATE UTF8String)
+target_compile_features(UTF8String_performance PRIVATE cxx_std_20)
