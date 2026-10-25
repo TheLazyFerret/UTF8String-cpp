@@ -54,6 +54,10 @@ public:
   constexpr void pop_back();
   constexpr void resize(size_t count) { inner_data.resize(count); }
   constexpr void resize(size_t count, UTF8Symbol symbol) { inner_data.resize(count, symbol); }
+  constexpr UTF8String& append(const UTF8String&);
+
+  constexpr friend UTF8String operator+(const UTF8String&, const UTF8String&);
+  constexpr friend UTF8String operator+(const UTF8String&, UTF8Symbol);
 
   std::string to_string() const noexcept;
 
@@ -79,11 +83,34 @@ constexpr UTF8String::UTF8String(std::string_view str) {
   inner_data.shrink_to_fit();
 }
 
+/// Removes the last element in the UTF8String. Throws if it is empty.
 constexpr void UTF8String::pop_back() {
   if (inner_data.empty()) {
     throw std::runtime_error("The container is empty.");
   }
   inner_data.pop_back();
+}
+
+/// Append the src UTF8String at the end of the object.
+constexpr UTF8String& UTF8String::append(const UTF8String& src) {
+  inner_data.insert(inner_data.end(), src.inner_data.begin(), src.inner_data.end());
+  return *this;
+}
+
+/// Return the concatenation of two UTF8String as a new UTF8String.
+constexpr UTF8String operator+(const UTF8String& lhs, const UTF8String& rhs) {
+  UTF8String result;
+  result.inner_data.reserve(lhs.size() + rhs.size());
+  result.inner_data.insert(result.inner_data.end(), lhs.inner_data.begin(), lhs.inner_data.end());
+  result.inner_data.insert(result.inner_data.end(), rhs.inner_data.begin(), rhs.inner_data.end());
+  return result;
+}
+
+/// Return the concatenation of a UTF8String and a UTF8Symbol as a new UTF8String.
+constexpr UTF8String operator+(const UTF8String& lhs, UTF8Symbol rhs) {
+  UTF8String result = lhs;
+  result.inner_data.push_back(rhs);
+  return result;
 }
 
 } // namespace utf8_string
