@@ -69,9 +69,9 @@ public:
   constexpr std::uint32_t to_integer() const noexcept;
   constexpr size_t byte_size() const noexcept { return static_cast<size_t>(size); }
 
-  std::string to_string() const noexcept;
+  constexpr std::string to_string() const noexcept;
   constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
-  std::vector<char8_t> data_vec() const noexcept;
+  constexpr std::vector<char8_t> data_vec() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
   friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
@@ -243,6 +243,25 @@ constexpr std::uint32_t UTF8Symbol::to_integer() const noexcept {
     value = (value | static_cast<std::uint32_t>(inner_data[i]));
   }
   return value;
+}
+
+/// Returns the inner data (the bytes), allocating a vector with the exact
+/// same size of the inner data.
+constexpr std::vector<char8_t> UTF8Symbol::data_vec() const noexcept {
+  std::vector<char8_t> result{inner_data.begin(), inner_data.begin() + size};
+  return result;
+}
+
+/// Convert the UTF8 Symbol into a string.
+/// Important to note that the resulted string will only contain one symbol,
+/// but the size will be >= 1
+constexpr std::string UTF8Symbol::to_string() const noexcept {
+  std::string result;
+  result.reserve(static_cast<size_t>(size));
+  for (unsigned char i = 0; i < this->size; ++i) {
+    result.push_back(static_cast<char>(inner_data[i]));
+  }
+  return result;
 }
 
 } // namespace utf8_string

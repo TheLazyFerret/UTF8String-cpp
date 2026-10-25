@@ -63,22 +63,3 @@ std::istream& utf8_string::operator>>(std::istream& is, UTF8Symbol& symbol) noex
   symbol.size = byte_size;
   return is;
 }
-
-/// Returns the inner data (the bytes), allocating a vector with the exact
-/// same size of the inner data.
-std::vector<char8_t> UTF8Symbol::data_vec() const noexcept {
-  std::vector<char8_t> result{inner_data.begin(), inner_data.begin() + size};
-  return result;
-}
-
-/// Convert the UTF8 Symbol into a string.
-/// Important to note that the resulted string will only contain one symbol,
-/// but the size will be >= 1
-std::string UTF8Symbol::to_string() const noexcept {
-  std::string result;
-  result.reserve(static_cast<size_t>(size));
-  for (unsigned char i = 0; i < this->size; ++i) {
-    result.push_back(static_cast<char>(inner_data[i]));
-  }
-  return result;
-}
