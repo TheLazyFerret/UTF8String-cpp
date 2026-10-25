@@ -78,8 +78,18 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_comparison_test) {
   BOOST_TEST((unicode_1 > unicode_1) == false);
 }
 
-BOOST_AUTO_TEST_CASE(UTF8String_constructor) {
+BOOST_AUTO_TEST_CASE(UTF8String_constructor_test) {
   const std::string str_og = "   ඞඞඞ";
   UTF8String str(str_og);
   BOOST_TEST((str_og == str.to_string()));
+}
+
+BOOST_AUTO_TEST_CASE(UTF8String_appending_test) {
+  const std::string str_a = "ඞඞඞa";
+  const std::string str_b = "aඞඞඞ";
+  const std::string str_c = str_a + str_b;
+  const UTF8String aux_a(str_a);
+  const UTF8String aux_b(str_b);
+  const UTF8String aux_c = aux_a + aux_b;
+  BOOST_TEST(aux_c.to_string() == str_c);
 }
