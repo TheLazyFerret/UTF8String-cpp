@@ -74,7 +74,7 @@ public:
   constexpr std::vector<char8_t> data_vec() const noexcept;
 
   friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
-  friend std::istream& operator>>(std::istream&, UTF8Symbol&) noexcept;
+  friend std::istream& operator>>(std::istream&, UTF8Symbol&);
 
   constexpr friend bool operator==(const UTF8Symbol&, const UTF8Symbol&) noexcept;
   constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;

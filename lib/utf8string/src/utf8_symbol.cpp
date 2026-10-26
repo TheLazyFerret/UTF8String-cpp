@@ -19,7 +19,7 @@ std::ostream& utf8_string::operator<<(std::ostream& os, const UTF8Symbol& symbol
 }
 
 /// Attempt to build a UTF8Symbol from the
-std::istream& utf8_string::operator>>(std::istream& is, UTF8Symbol& symbol) noexcept {
+std::istream& utf8_string::operator>>(std::istream& is, UTF8Symbol& symbol) {
   std::array<char8_t, UTF8_SYMBOL_SIZE> buffer;
   char aux;
   size_t byte_size = 0;
