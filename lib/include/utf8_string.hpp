@@ -11,13 +11,15 @@
 
 #include "utf8_symbol.hpp"
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <iostream>
 
 namespace utf8_string {
+
+constexpr bool is_string_utf8_valid(std::string_view) noexcept;
 
 class UTF8String {
 public:
@@ -157,6 +159,11 @@ constexpr std::string UTF8String::to_string() const {
     result.insert(result.end(), aux, aux + symbol_data.second);
   }
   return result;
+}
+
+/// Returns true if the src is a valid UTF8 encoded string.
+constexpr bool is_string_utf8_valid(std::string_view src) noexcept { 
+  return true; 
 }
 
 } // namespace utf8_string

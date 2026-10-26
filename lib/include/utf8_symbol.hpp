@@ -47,6 +47,9 @@ constexpr short bytes_of_utf8(char byte) noexcept {
   return -1;
 }
 
+constexpr bool is_symbol_utf8_valid(std::string_view src) noexcept;
+constexpr bool is_symbol_utf8_valid(char src) noexcept;
+
 /// Represents a single UTF-8 symbol.
 /// UTF-8 has a variable length, something that is hard to implement at compile time.
 /// Due doing tons of allocations for the sake of saving a few bytes is very unnecesary,
@@ -97,7 +100,7 @@ static_assert(std::is_trivially_copyable<UTF8Symbol>(), "UTF8Symbol is not trivi
 /// Constexpr constructor fot ASCII char.
 /// It can throw an exception if the char is negative.
 constexpr UTF8Symbol::UTF8Symbol(char ascii_char) {
-  if (ascii_char < 0) {
+  if (!is_symbol_utf8_valid(ascii_char)) {
     throw std::invalid_argument("The ASCII character has a not valid value.");
   }
   inner_data.front() = ascii_char;
@@ -262,6 +265,33 @@ constexpr std::string UTF8Symbol::to_string() const noexcept {
     result.push_back(static_cast<char>(inner_data[i]));
   }
   return result;
+}
+
+/// Returns true if a symbol (multi-byte) is a valid UTF8 encoded one.
+constexpr bool is_symbol_utf8_valid(std::string_view src) noexcept {
+  if (src.size() < 1 || src.size() > 4) {
+    return false;
+  }
+  const auto size = utf8_string::bytes_of_utf8(src[0]);
+  if (size < 1) {
+    return false;
+  } else if (size != src.size()) {
+    return false;
+  }
+  for (size_t i = 1; i < size; ++i) {
+    if (!test_8byte(src[i], utf8_string::NF_BYTE_MASK, utf8_string::NF_BYTE_RESULT)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Returns true if a symbol (single-byte (ASCII)) is a valid UTF8 encoded one.
+constexpr bool is_symbol_utf8_valid(char src) noexcept {
+  if (src < 0) {
+    return false;
+  }
+  return true;
 }
 
 } // namespace utf8_string
