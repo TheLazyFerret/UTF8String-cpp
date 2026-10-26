@@ -16,7 +16,8 @@
       "displayName": "Develop and Debug preset",
       "inherits": "base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TESTING": true
       }
     },
     {
@@ -24,7 +25,8 @@
       "displayName": "Release mode with optimizations preset",
       "inherits": "base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "TESTING": true
       }
     }
   ],
