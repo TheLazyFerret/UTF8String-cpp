@@ -13,7 +13,7 @@ option(TESTING "Enable test compilations" OFF)
 # Create the compile_commands.json (mostly for clangd).
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(lib/utf8string)
+add_subdirectory(lib/)
 
 # Special rules for DEBUG builds.
 if (TESTING)
@@ -22,5 +22,5 @@ if (TESTING)
   # Ensure the Boost library for testing exist.
   find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   # Add the testing subdirectories.
-  add_subdirectory(test/utf8string)
+  add_subdirectory(test/)
 endif()
