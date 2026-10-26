@@ -14,9 +14,9 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
-#include <type_traits>
 
 namespace utf8_string {
 
@@ -178,60 +178,24 @@ constexpr bool operator>(const UTF8Symbol& lhs, const UTF8Symbol& rhs) noexcept 
 /// It is allocation free.
 /// It is important that the str only has one UTF8 symbol. Will throw otherwise.
 constexpr UTF8Symbol UTF8Symbol::decode_str(std::string_view str) {
-  const char* const ERROR_MESSAGE = "The raw str is not a UTF-8 symbol.";
+  const char* const ERROR_MESSAGE = "The str is not a UTF-8 symbol.";
   if (!(str.size() >= 1 && str.size() <= 4)) {
     throw std::invalid_argument(ERROR_MESSAGE);
   }
   UTF8Symbol result;
-  const char8_t first_char = static_cast<char8_t>(str.front());
-  // The unicode symbol is two byte long.
-  if (test_8byte(first_char, F_BYTE_MASK[0], F_BYTE_RESULT[0])) {
-    CHECK_SIZE(str.size(), 1, ERROR_MESSAGE)
-    result.inner_data = {first_char, '\0', '\0', '\0'};
-    result.size = 1;
-    return result;
+  const auto byte_size = bytes_of_utf8(str[0]);
+  if (byte_size < 1) {
+    throw std::invalid_argument(ERROR_MESSAGE);
   }
-  // The unicode symbol is two byte long.
-  else if (test_8byte(first_char, F_BYTE_MASK[1], F_BYTE_RESULT[1])) {
-    CHECK_SIZE(str.size(), 2, ERROR_MESSAGE)
-    const char8_t second_char = static_cast<char8_t>(str.at(1));
-    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
+  result.inner_data[0] = str[0];
+  for (size_t i = 1; i < static_cast<size_t>(byte_size); ++i) {
+    if (!test_8byte(str[i], NF_BYTE_MASK, NF_BYTE_RESULT)) {
       throw std::invalid_argument(ERROR_MESSAGE);
     }
-    result.inner_data = {first_char, second_char, '\0', '\0'};
-    result.size = 2;
-    return result;
+    result.inner_data[i] = str[i];
   }
-  // The unicode symbol is thre byte long.
-  else if (test_8byte(first_char, F_BYTE_MASK[2], F_BYTE_RESULT[2])) {
-    CHECK_SIZE(str.size(), 3, ERROR_MESSAGE)
-    const char8_t second_char = static_cast<char8_t>(str.at(1));
-    const char8_t third_char = static_cast<char8_t>(str.at(2));
-    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
-        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
-      throw std::invalid_argument(ERROR_MESSAGE);
-    }
-    result.inner_data = {first_char, second_char, third_char, '\0'};
-    result.size = 3;
-    return result;
-  }
-  // The unicode symbol is four byte long.
-  else if (test_8byte(first_char, F_BYTE_MASK[3], F_BYTE_RESULT[3])) {
-    CHECK_SIZE(str.size(), 4, ERROR_MESSAGE)
-    const char8_t second_char = static_cast<char8_t>(str.at(1));
-    const char8_t third_char = static_cast<char8_t>(str.at(2));
-    const char8_t fourth_char = static_cast<char8_t>(str.at(3));
-    if (!test_8byte(second_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
-        !test_8byte(third_char, NF_BYTE_MASK, NF_BYTE_RESULT) ||
-        !test_8byte(fourth_char, NF_BYTE_MASK, NF_BYTE_RESULT)) {
-      throw std::invalid_argument(ERROR_MESSAGE);
-    }
-    result.inner_data = {first_char, second_char, third_char, fourth_char};
-    result.size = 4;
-    return result;
-  }
-  // The first byte is bad coded.
-  throw std::invalid_argument(ERROR_MESSAGE);
+  result.size = static_cast<unsigned char>(byte_size);
+  return result;
 }
 
 #undef CHECK_SIZE
@@ -275,10 +239,10 @@ constexpr bool is_symbol_utf8_valid(std::string_view src) noexcept {
   const auto size = utf8_string::bytes_of_utf8(src[0]);
   if (size < 1) {
     return false;
-  } else if (size != src.size()) {
+  } else if (static_cast<size_t>(size) != src.size()) {
     return false;
   }
-  for (size_t i = 1; i < size; ++i) {
+  for (size_t i = 1; i < static_cast<size_t>(size); ++i) {
     if (!test_8byte(src[i], utf8_string::NF_BYTE_MASK, utf8_string::NF_BYTE_RESULT)) {
       return false;
     }
