@@ -15,6 +15,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <iostream>
 
 namespace utf8_string {
 
@@ -60,6 +61,9 @@ public:
 
   constexpr friend UTF8String operator+(const UTF8String&, const UTF8String&);
   constexpr friend UTF8String operator+(const UTF8String&, UTF8Symbol);
+
+  friend std::ostream& operator<<(std::ostream& os, const UTF8String&);
+  friend std::istream& operator>>(std::istream& is, UTF8String&);
 
   constexpr std::string to_string() const;
 
