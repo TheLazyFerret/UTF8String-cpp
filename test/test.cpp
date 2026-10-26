@@ -109,3 +109,10 @@ BOOST_AUTO_TEST_CASE(UTF8String_valid_test) {
   str.pop_back();
   BOOST_TEST(is_string_utf8_valid(str) == false);
 }
+
+BOOST_AUTO_TEST_CASE(UTF8String_equality_test) {
+  UTF8String a("ඞඞඞ");
+  UTF8String b("amogus");
+  BOOST_TEST((a == a) == true);
+  BOOST_TEST((a == b) == false);
+}
