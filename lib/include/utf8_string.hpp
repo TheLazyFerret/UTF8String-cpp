@@ -152,6 +152,7 @@ constexpr bool is_string_utf8_valid(std::string_view str) noexcept {
     if (!is_symbol_utf8_valid(slice)) {
       return false;
     }
+    i += static_cast<size_t>(size) - 1;
   }
   return true; 
 }

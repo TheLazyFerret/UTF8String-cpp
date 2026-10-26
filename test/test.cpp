@@ -102,3 +102,10 @@ BOOST_AUTO_TEST_CASE(UTF8Symbol_valid_test) {
   BOOST_TEST(is_symbol_utf8_valid(str_a) == false);
   BOOST_TEST(is_symbol_utf8_valid(EXAMPLE_BAD_ASCII) == false);
 }
+
+BOOST_AUTO_TEST_CASE(UTF8String_valid_test) {
+  std::string str = "aඞඞඞ";
+  BOOST_TEST(is_string_utf8_valid(str) == true);
+  str.pop_back();
+  BOOST_TEST(is_string_utf8_valid(str) == false);
+}
