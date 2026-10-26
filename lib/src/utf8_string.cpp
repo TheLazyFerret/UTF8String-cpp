@@ -24,3 +24,23 @@ std::istream& utf8_string::operator>>(std::istream& is, UTF8String& str) {
   str = UTF8String(aux);
   return is;
 }
+
+/// Return a std::string with the bytes of each symbol hold.
+/// It needs to loop all symbols, and all bytes of all symbols, so it is not a cheap conversion.
+/// It should never fail, unless allocation error or stuff like that.
+///
+/// Use a relative conservative ammount of bytes reserved, so most UTF8Strings should only need one allocation.
+std::string UTF8String::to_string() const {
+  std::string result;
+  if (inner_data.size() == 0) {
+    return result; // Directly return an empty string.
+  }
+  // Reserve a conservative ammount of memory.
+  result.reserve(inner_data.size() * 2);
+  for (const auto& symbol : inner_data) {
+    const auto symbol_data = symbol.data();
+    const char* aux = reinterpret_cast<const char*>(symbol_data.first.data());
+    result.insert(result.end(), aux, aux + symbol_data.second);
+  }
+  return result;
+}
