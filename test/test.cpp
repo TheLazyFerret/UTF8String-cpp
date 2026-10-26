@@ -6,15 +6,15 @@
 #include "utf8_string.hpp"
 #include "utf8_symbol.hpp"
 
+#include <cstdint>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <cstdint>
 
 constexpr std::string_view EXAMPLE_UNICODE = "ඞ";
 constexpr char EXAMPLE_ASCII = 'a';
-constexpr char EXAMPLE_BAD_ASCII = 0xFFFF;
+constexpr char EXAMPLE_BAD_ASCII = 0xFF;
 
 /// Generates a bad code unicode.
 std::string bad_unicode() noexcept {
@@ -92,4 +92,13 @@ BOOST_AUTO_TEST_CASE(UTF8String_appending_test) {
   const UTF8String aux_b(str_b);
   const UTF8String aux_c = aux_a + aux_b;
   BOOST_TEST(aux_c.to_string() == str_c);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8Symbol_valid_test) {
+  std::string str_a(EXAMPLE_UNICODE);
+  BOOST_TEST(is_symbol_utf8_valid(str_a) == true);
+  BOOST_TEST(is_symbol_utf8_valid(EXAMPLE_ASCII) == true);
+  str_a.pop_back();
+  BOOST_TEST(is_symbol_utf8_valid(str_a) == false);
+  BOOST_TEST(is_symbol_utf8_valid(EXAMPLE_BAD_ASCII) == false);
 }
