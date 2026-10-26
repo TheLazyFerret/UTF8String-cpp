@@ -60,12 +60,18 @@ public:
   constexpr void resize(size_t count) { inner_data.resize(count); }
   constexpr void resize(size_t count, UTF8Symbol symbol) { inner_data.resize(count, symbol); }
   constexpr UTF8String& append(const UTF8String&);
+  constexpr UTF8String& append(UTF8Symbol);
 
   constexpr friend UTF8String operator+(const UTF8String&, const UTF8String&);
   constexpr friend UTF8String operator+(const UTF8String&, UTF8Symbol);
+  constexpr friend UTF8String& operator+=(UTF8String&, const UTF8String&);
+  constexpr friend UTF8String& operator+=(UTF8String&, UTF8Symbol);
 
   friend std::ostream& operator<<(std::ostream& os, const UTF8String&);
   friend std::istream& operator>>(std::istream& is, UTF8String&);
+
+  constexpr friend bool operator==(const UTF8String&, const UTF8String&) noexcept;
+  constexpr friend bool operator!=(const UTF8String&, const UTF8String&) noexcept;
 
   std::string to_string() const;
 
@@ -114,6 +120,12 @@ constexpr UTF8String& UTF8String::append(const UTF8String& src) {
   return *this;
 }
 
+/// Append the symbol at the end of the object.
+constexpr UTF8String& UTF8String::append(UTF8Symbol symbol) {
+  inner_data.push_back(symbol);
+  return *this;
+}
+
 /// Return the concatenation of two UTF8String as a new UTF8String.
 constexpr UTF8String operator+(const UTF8String& lhs, const UTF8String& rhs) {
   UTF8String result;
@@ -142,7 +154,7 @@ constexpr size_t UTF8String::utf8_byte_size() const noexcept {
 }
 
 /// Returns true if the str is a valid UTF8 encoded string.
-constexpr bool is_string_utf8_valid(std::string_view str) noexcept { 
+constexpr bool is_string_utf8_valid(std::string_view str) noexcept {
   for (size_t i = 0; i < str.size(); ++i) {
     const auto size = bytes_of_utf8(str[i]);
     if (size < 1) {
@@ -154,7 +166,45 @@ constexpr bool is_string_utf8_valid(std::string_view str) noexcept {
     }
     i += static_cast<size_t>(size) - 1;
   }
-  return true; 
+  return true;
+}
+
+/// Return true if both UTF8String are equal.
+constexpr bool operator==(const UTF8String& lhs, const UTF8String& rhs) noexcept {
+  if (lhs.size() != rhs.size()) {
+    return false;
+  }
+  for (size_t i = 0; i < lhs.size(); ++i) {
+    if (lhs.inner_data[i] != rhs.inner_data[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Return true if both UTF8String are different.
+constexpr bool operator!=(const UTF8String& lhs, const UTF8String& rhs) noexcept {
+  if (lhs.size() != rhs.size()) {
+    return true;
+  }
+  for (size_t i = 0; i < lhs.size(); ++i) {
+    if (lhs.inner_data[i] == rhs.inner_data[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Do the += assignment between two UTF8String.
+constexpr UTF8String& operator+=(UTF8String& lhs, const UTF8String& rhs) {
+  lhs.append(rhs);
+  return lhs;
+}
+
+/// Do the += assignment between a UTF8String and a UTF8Symbol.
+constexpr UTF8String& operator+=(UTF8String& lhs, UTF8Symbol rhs) {
+  lhs.inner_data.push_back(rhs);
+  return lhs;
 }
 
 } // namespace utf8_string
