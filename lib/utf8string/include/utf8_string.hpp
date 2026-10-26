@@ -23,6 +23,7 @@ public:
   // Special methods.
   constexpr UTF8String() noexcept = default;
   constexpr explicit UTF8String(std::string_view);
+  constexpr explicit UTF8String(UTF8Symbol);
   constexpr ~UTF8String() = default;
   constexpr UTF8String(const UTF8String&) = default;
   constexpr UTF8String& operator=(const UTF8String&) = default;
@@ -63,14 +64,16 @@ public:
   constexpr std::string to_string() const;
 
 private:
+  constexpr static std::vector<UTF8Symbol> decode_str(std::string_view);
+
   std::vector<UTF8Symbol> inner_data;
 };
 
-/// Construct a new UTF8String from a str.
-/// It only does as much one allocation for holding the resulting value.
-constexpr UTF8String::UTF8String(std::string_view str) {
-  // Reserve the worst case memory needed to hold the converted string.
-  inner_data.reserve(str.size());
+/// Decode a str into a vector of UTF8Symbol.
+constexpr std::vector<UTF8Symbol> UTF8String::decode_str(std::string_view str) {
+  std::vector<UTF8Symbol> result;
+  // Reserve a conservative ammount of space.
+  result.reserve(str.size() / 2);
   for (size_t i = 0; i < str.size(); ++i) {
     const auto size = bytes_of_utf8(str[i]);
     // If fails, it is because the parameter is bad encoded.
@@ -78,11 +81,18 @@ constexpr UTF8String::UTF8String(std::string_view str) {
       throw std::invalid_argument("Bad encoded symbol.");
     }
     const std::string_view slice = str.substr(i, static_cast<size_t>(size));
-    inner_data.emplace_back(slice);
+    result.emplace_back(slice);
     i += static_cast<size_t>(size) - 1; // Need to substract 1 because skips 1 byte otherwise.
   }
-  inner_data.shrink_to_fit();
+  return result;
 }
+
+/// Construct a new UTF8String from a str.
+/// In the best case, it uses only one allocation.
+constexpr UTF8String::UTF8String(std::string_view str) { inner_data = decode_str(str); }
+
+/// Creates a UTF8String with only one symbol.
+constexpr UTF8String::UTF8String(UTF8Symbol symbol) { inner_data.push_back(symbol); }
 
 /// Removes the last element in the UTF8String. Throws if it is empty.
 constexpr void UTF8String::pop_back() {
@@ -135,16 +145,14 @@ constexpr std::string UTF8String::to_string() const {
   if (inner_data.size() == 0) {
     return result; // Directly return an empty string.
   }
+  // Reserve a conservative ammount of memory.
   result.reserve(inner_data.size() * 2);
   for (const auto& symbol : inner_data) {
     const auto symbol_data = symbol.data();
     const char* aux = reinterpret_cast<const char*>(symbol_data.first.data());
     result.insert(result.end(), aux, aux + symbol_data.second);
   }
-  //result.shrink_to_fit();
-  //std::cout << result.size() << " " << result.capacity() << std::endl;
   return result;
 }
-
 
 } // namespace utf8_string
