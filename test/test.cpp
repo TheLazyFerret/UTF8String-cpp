@@ -139,3 +139,14 @@ BOOST_AUTO_TEST_CASE(UTF8String_find_symbol) {
   BOOST_TEST(a.find(amogus, 5) == 5);
   BOOST_TEST(a.find(amogus, 6) == UTF8String::npos);
 }
+
+BOOST_AUTO_TEST_CASE(UTF8String_substr) {
+  const UTF8String str("aඞaඞaඞ");
+  const UTF8String substr1("ඞaඞaඞ");
+  const UTF8String substr2("ඞaඞ");
+  const UTF8String substr3("ඞ");
+  BOOST_TEST(str.substr() == str);
+  BOOST_TEST(str.substr(1) == substr1);
+  BOOST_TEST(str.substr(1, 3) == substr2);
+  BOOST_TEST(str.substr(1, 1) == substr3);
+}

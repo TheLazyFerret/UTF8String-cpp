@@ -256,7 +256,7 @@ constexpr UTF8String UTF8String::substr(size_t pos, size_t count) const {
   UTF8String result;
   result.inner_data.reserve(this->inner_data.size());
   size_t inserted = 0;
-  for (size_t i = 0; i < size(); ++i) {
+  for (size_t i = pos; i < size(); ++i) {
     if (inserted >= count) {
       return result;
     }
