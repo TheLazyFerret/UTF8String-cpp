@@ -52,8 +52,6 @@ public:
   constexpr void reserve(size_t n) { inner_data.reserve(n); }
   constexpr size_t capacity() const noexcept { return inner_data.capacity(); }
   constexpr void shrink_to_fit() { inner_data.shrink_to_fit(); }
-  constexpr size_t find(const UTF8String& src, size_t pos = 0) const noexcept;
-  constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
 
   // Modifiers methods.
   constexpr void clear() noexcept { inner_data.clear(); }
@@ -63,6 +61,14 @@ public:
   constexpr void resize(size_t count, UTF8Symbol symbol) { inner_data.resize(count, symbol); }
   constexpr UTF8String& append(const UTF8String&);
   constexpr UTF8String& append(UTF8Symbol);
+
+  // Search methods.
+  constexpr size_t find(const UTF8String& src, size_t pos = 0) const noexcept;
+  constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
+
+  // Other operations methods.
+  constexpr UTF8String substr(size_t pos = 0, size_t count = npos) const;
+  std::string to_string() const;
 
   constexpr friend UTF8String operator+(const UTF8String&, const UTF8String&);
   constexpr friend UTF8String operator+(const UTF8String&, UTF8Symbol);
@@ -74,8 +80,6 @@ public:
 
   constexpr friend bool operator==(const UTF8String&, const UTF8String&) noexcept;
   constexpr friend bool operator!=(const UTF8String&, const UTF8String&) noexcept;
-
-  std::string to_string() const;
 
   static constexpr size_t npos = -1; // No position special value.
 private:
@@ -241,6 +245,25 @@ constexpr size_t UTF8String::find(UTF8Symbol symbol, size_t pos) const noexcept 
     }
   }
   return npos;
+}
+
+/// Return a slice of the source string.
+/// Follows the same rules as std::string::substr().
+constexpr UTF8String UTF8String::substr(size_t pos, size_t count) const {
+  if (pos > size()) {
+    throw(std::out_of_range("pos > size()"));
+  }
+  UTF8String result;
+  result.inner_data.reserve(this->inner_data.size());
+  size_t inserted = 0;
+  for (size_t i = 0; i < size(); ++i) {
+    if (inserted >= count) {
+      return result;
+    }
+    result.push_back(this->at(i));
+    inserted += 1;
+  }
+  return result;
 }
 
 } // namespace utf8_string
