@@ -52,6 +52,8 @@ public:
   constexpr void reserve(size_t n) { inner_data.reserve(n); }
   constexpr size_t capacity() const noexcept { return inner_data.capacity(); }
   constexpr void shrink_to_fit() { inner_data.shrink_to_fit(); }
+  constexpr size_t find(const UTF8String& src, size_t pos = 0) const noexcept;
+  constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
 
   // Modifiers methods.
   constexpr void clear() noexcept { inner_data.clear(); }
@@ -75,6 +77,7 @@ public:
 
   std::string to_string() const;
 
+  static constexpr size_t npos = -1; // No position special value.
 private:
   constexpr static std::vector<UTF8Symbol> decode_str(std::string_view);
 
@@ -205,6 +208,39 @@ constexpr UTF8String& operator+=(UTF8String& lhs, const UTF8String& rhs) {
 constexpr UTF8String& operator+=(UTF8String& lhs, UTF8Symbol rhs) {
   lhs.inner_data.push_back(rhs);
   return lhs;
+}
+
+/// Find the substring str in the caller instance.
+constexpr size_t UTF8String::find(const UTF8String& str, size_t pos) const noexcept {
+  if (str.size() + pos > this->size()) {
+    return npos;
+  } else if (str.empty() && empty()) {
+    return 0;
+  }
+  for (size_t i = pos; i < this->size(); ++i) {
+    if (str.size() + i > this->size()) {
+      return npos;
+    }
+    for (size_t j = 0; j < str.size(); ++j) {
+      if (at(i + j) != str[j]) {
+        break;
+      }
+      if (j == str.size() - 1) {
+        return i;
+      }
+    }
+  }
+  return npos;
+}
+
+/// Find the symbol in the UTF8String.
+constexpr size_t UTF8String::find(UTF8Symbol symbol, size_t pos) const noexcept {
+  for (size_t i = pos; i < size(); ++i) {
+    if (at(i) == symbol) {
+      return i;
+    }
+  }
+  return npos;
 }
 
 } // namespace utf8_string
