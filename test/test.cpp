@@ -116,3 +116,26 @@ BOOST_AUTO_TEST_CASE(UTF8String_equality_test) {
   BOOST_TEST((a == a) == true);
   BOOST_TEST((a == b) == false);
 }
+
+BOOST_AUTO_TEST_CASE(UTF8String_find_string) {
+  const UTF8String a("aaaඞඞඞaaa");
+  const UTF8String b("ඞඞඞ");
+  const UTF8String c("");
+  BOOST_TEST(a.find(b, 1) == 3);
+  BOOST_TEST(b.find(a) == UTF8String::npos);
+  BOOST_TEST(a.find(b, 3) == 3);
+  BOOST_TEST(a.find(b, 4) == UTF8String::npos);
+  BOOST_TEST(a.find(a) == 0);
+  BOOST_TEST(c.find(c) == 0);
+  BOOST_TEST(a.find(a, 1) == UTF8String::npos);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8String_find_symbol) {
+  const UTF8String a("aaaඞඞඞaaa");
+  const UTF8Symbol amogus("ඞ");
+  BOOST_TEST(a.find(amogus) == 3);
+  BOOST_TEST(a.find(amogus, 3) == 3);
+  BOOST_TEST(a.find(amogus, 4) == 4);
+  BOOST_TEST(a.find(amogus, 5) == 5);
+  BOOST_TEST(a.find(amogus, 6) == UTF8String::npos);
+}
