@@ -11,7 +11,10 @@
 
 #include "utf8_symbol.hpp"
 
+#include <compare>
+#include <cstddef>
 #include <iostream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -23,6 +26,35 @@ constexpr bool is_string_utf8_valid(std::string_view) noexcept;
 
 class UTF8String {
 public:
+  struct Iterator {
+    // Tags.
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = UTF8Symbol;
+    using reference = value_type&;
+    using pointer = value_type*;
+    using difference_type = std::ptrdiff_t;
+
+    // Special methods.
+    constexpr Iterator() noexcept = default;
+    constexpr Iterator(UTF8String* data, size_t index = 0) noexcept : data(data), index(index) {}
+
+    // Methods.
+    constexpr Iterator& operator++() noexcept;
+    constexpr Iterator operator++(int) noexcept;
+    constexpr Iterator& operator--() noexcept;
+    constexpr Iterator operator--(int) noexcept;
+
+    constexpr bool operator==(const Iterator&) const noexcept;
+
+    constexpr reference operator*() const;
+
+  private:
+    UTF8String* data;
+    size_t index;
+  };
+  static_assert(std::forward_iterator<Iterator>);
+  static_assert(std::bidirectional_iterator<Iterator>);
+
   // Special methods.
   constexpr UTF8String() noexcept = default;
   constexpr explicit UTF8String(std::string_view);
@@ -66,6 +98,8 @@ public:
   constexpr size_t find(const UTF8String& src, size_t pos = 0) const noexcept;
   constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
 
+  // Iterator methods.
+
   // Other operations methods.
   constexpr UTF8String substr(size_t pos = 0, size_t count = npos) const;
   std::string to_string() const;
@@ -82,6 +116,7 @@ public:
   constexpr friend bool operator!=(const UTF8String&, const UTF8String&) noexcept;
 
   static constexpr size_t npos = -1; // No position special value.
+
 private:
   constexpr static std::vector<UTF8Symbol> decode_str(std::string_view);
 
@@ -265,5 +300,43 @@ constexpr UTF8String UTF8String::substr(size_t pos, size_t count) const {
   }
   return result;
 }
+
+#define Iterator UTF8String::Iterator
+
+/// Pre-increment operator.
+constexpr Iterator& Iterator::operator++() noexcept {
+  this->index += 1;
+  return *this;
+}
+
+/// Post-increment operator.
+constexpr Iterator Iterator::operator++(int) noexcept {
+  const auto tmp = *this;
+  this->index += 1;
+  return tmp;
+}
+
+/// Pre-decrement operator.
+constexpr Iterator& Iterator::operator--() noexcept {
+  this->index -= 1;
+  return *this;
+}
+
+/// Post-decrement operator.
+constexpr Iterator Iterator::operator--(int) noexcept {
+  const auto tmp = *this;
+  this->index -= 1;
+  return tmp;
+}
+
+/// Returns true if two iterators are equal.
+constexpr bool Iterator::operator==(const Iterator& other) const noexcept {
+  return (this->data == other.data) && (this->index == other.index);
+}
+
+/// Returns a reference to the value in the position (throws if invalid).
+constexpr UTF8Symbol& Iterator::operator*() const { return this->data->at(this->index); }
+
+#undef Iterator
 
 } // namespace utf8_string
