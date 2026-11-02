@@ -151,6 +151,12 @@ public:
   constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
 
   // Iterator methods.
+  constexpr Iterator begin() noexcept { return Iterator(this, 0); }
+  constexpr ConstIterator begin() const noexcept { return ConstIterator(this, 0); }
+  constexpr Iterator end() noexcept { return Iterator(this, size()); }
+  constexpr ConstIterator end() const noexcept { return ConstIterator(this, size()); }
+  constexpr ConstIterator cbegin() const noexcept { return ConstIterator(this, 0); }
+  constexpr ConstIterator cend() const noexcept { return ConstIterator(this, size()); }
 
   // Other operations methods.
   constexpr UTF8String substr(size_t pos = 0, size_t count = npos) const;
