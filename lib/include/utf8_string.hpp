@@ -58,13 +58,54 @@ public:
     constexpr std::strong_ordering operator<=>(const Iterator& other) const;
 
     constexpr reference operator*() const;
-    constexpr UTF8Symbol* operator->() const noexcept;
+    constexpr pointer operator->() const noexcept;
 
   private:
     UTF8String* data;
     size_t index;
   };
+
+  struct ConstIterator {
+    // Tags.
+    using iterator_category = std::contiguous_iterator_tag;
+    using value_type = UTF8Symbol;
+    using reference = const value_type&;
+    using pointer = const value_type*;
+    using difference_type = std::ptrdiff_t;
+
+    // Special methods.
+    constexpr ConstIterator() = default;
+    constexpr ConstIterator(const UTF8String* data, size_t index = 0) : data(data), index(index) {}
+
+    // Methods.
+    constexpr ConstIterator& operator++() noexcept;
+    constexpr ConstIterator operator++(int) noexcept;
+    constexpr ConstIterator& operator--() noexcept;
+    constexpr ConstIterator operator--(int) noexcept;
+
+    constexpr ConstIterator operator+(difference_type n) const noexcept;
+    constexpr friend ConstIterator operator+(difference_type n, const ConstIterator&) noexcept;
+    constexpr ConstIterator& operator+=(difference_type n) noexcept;
+    constexpr ConstIterator operator-(difference_type n) const noexcept;
+    constexpr ConstIterator& operator-=(difference_type n) noexcept;
+
+    constexpr difference_type operator-(const ConstIterator& other) const;
+
+    constexpr reference operator[](difference_type n) const noexcept;
+
+    constexpr bool operator==(const ConstIterator&) const noexcept;
+    constexpr std::strong_ordering operator<=>(const ConstIterator& other) const;
+
+    constexpr reference operator*() const;
+    constexpr pointer operator->() const noexcept;
+
+  private:
+    const UTF8String* data;
+    size_t index;
+  };
+
   static_assert(std::contiguous_iterator<Iterator>);
+  static_assert(std::contiguous_iterator<ConstIterator>);
 
   // Special methods.
   constexpr UTF8String() noexcept = default;
@@ -409,5 +450,103 @@ constexpr std::ptrdiff_t Iterator::operator-(const Iterator& other) const {
 constexpr UTF8Symbol* Iterator::operator->() const noexcept { return &data->at(index); }
 
 #undef Iterator
+
+#define ConstIterator UTF8String::ConstIterator
+
+/// Pre-increment operator.
+constexpr ConstIterator& ConstIterator::operator++() noexcept {
+  this->index += 1;
+  return *this;
+}
+
+/// Post-increment operator.
+constexpr ConstIterator ConstIterator::operator++(int) noexcept {
+  auto tmp = *this;
+  this->index += 1;
+  return tmp;
+}
+
+/// Pre-decrement operator.
+constexpr ConstIterator& ConstIterator::operator--() noexcept {
+  this->index -= 1;
+  return *this;
+}
+
+/// Post-decrement operator.
+constexpr ConstIterator ConstIterator::operator--(int) noexcept {
+  auto tmp = *this;
+  this->index -= 1;
+  return tmp;
+}
+
+/// Advance n position in the iterator.
+constexpr ConstIterator ConstIterator::operator+(difference_type n) const noexcept {
+  auto copy = *this;
+  copy.index += static_cast<size_t>(n);
+  return copy;
+}
+
+/// Advance n position in the iterator (with the opposite order).
+constexpr ConstIterator operator+(std::ptrdiff_t n, const ConstIterator& iter) noexcept {
+  auto copy = iter;
+  copy.index += static_cast<size_t>(n);
+  return copy;
+}
+
+/// Add with assignment operator.
+constexpr ConstIterator& ConstIterator::operator+=(difference_type n) noexcept {
+  this->index += static_cast<size_t>(n);
+  return *this;
+}
+
+/// Substract n position in the iterator.
+constexpr ConstIterator ConstIterator::operator-(difference_type n) const noexcept {
+  auto copy = *this;
+  copy.index -= static_cast<size_t>(n);
+  return copy;
+}
+
+/// Substract with assignment operator.
+constexpr ConstIterator& ConstIterator::operator-=(difference_type n) noexcept {
+  this->index -= static_cast<size_t>(n);
+  return *this;
+}
+
+/// Return the difference between two iterators.
+constexpr std::ptrdiff_t ConstIterator::operator-(const ConstIterator& other) const {
+  if (this->data != other.data) {
+    throw(std::runtime_error("Different iterators pointers"));
+  }
+  return static_cast<std::ptrdiff_t>(other.index - this->index);
+}
+
+/// Random access operator from the current position of the iterator.
+constexpr const UTF8Symbol& ConstIterator::operator[](difference_type n) const noexcept { return *(*this + n); }
+
+/// Return the iterated value.
+constexpr const UTF8Symbol& ConstIterator::operator*() const { return data->at(index); }
+
+/// Axuliar method for calling the inner pointer.
+constexpr const UTF8Symbol* ConstIterator::operator->() const noexcept { return &data->at(index); }
+
+/// Check if two iterators are equal.
+constexpr bool ConstIterator::operator==(const ConstIterator& other) const noexcept {
+  return (data && other.data) && (index && other.index);
+}
+
+/// Spaceship comparison iterator.
+constexpr std::strong_ordering ConstIterator::operator<=>(const ConstIterator& other) const {
+  if (this->data != other.data) {
+    throw(std::runtime_error("Invalid comparison"));
+  }
+  if (this->index < other.index) {
+    return std::strong_ordering::less;
+  } else if (this->index > other.index) {
+    return std::strong_ordering::greater;
+  }
+  return std::strong_ordering::equal;
+}
+
+#undef ConstIterator
 
 } // namespace utf8_string
