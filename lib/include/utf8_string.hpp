@@ -28,7 +28,7 @@ class UTF8String {
 public:
   struct Iterator {
     // Tags.
-    using iterator_category = std::random_access_iterator_tag;
+    using iterator_category = std::contiguous_iterator_tag;
     using value_type = UTF8Symbol;
     using reference = value_type&;
     using pointer = value_type*;
@@ -44,16 +44,27 @@ public:
     constexpr Iterator& operator--() noexcept;
     constexpr Iterator operator--(int) noexcept;
 
+    constexpr Iterator operator+(difference_type n) const noexcept;
+    constexpr friend Iterator operator+(difference_type n, const Iterator&) noexcept;
+    constexpr Iterator& operator+=(difference_type n) noexcept;
+    constexpr Iterator operator-(difference_type n) const noexcept;
+    constexpr Iterator& operator-=(difference_type n) noexcept;
+
+    constexpr difference_type operator-(const Iterator& other) const;
+
+    constexpr reference operator[](difference_type n) const noexcept;
+
     constexpr bool operator==(const Iterator&) const noexcept;
+    constexpr std::strong_ordering operator<=>(const Iterator& other) const;
 
     constexpr reference operator*() const;
+    constexpr UTF8Symbol* operator->() const noexcept;
 
   private:
     UTF8String* data;
     size_t index;
   };
-  static_assert(std::forward_iterator<Iterator>);
-  static_assert(std::bidirectional_iterator<Iterator>);
+  static_assert(std::contiguous_iterator<Iterator>);
 
   // Special methods.
   constexpr UTF8String() noexcept = default;
@@ -336,6 +347,66 @@ constexpr bool Iterator::operator==(const Iterator& other) const noexcept {
 
 /// Returns a reference to the value in the position (throws if invalid).
 constexpr UTF8Symbol& Iterator::operator*() const { return this->data->at(this->index); }
+
+/// Advance n position in the iterator.
+constexpr Iterator Iterator::operator+(difference_type n) const noexcept {
+  Iterator copy = *this;
+  copy.index += static_cast<size_t>(n);
+  return copy;
+}
+
+/// Same adding, but in the inverted order.
+constexpr Iterator operator+(std::ptrdiff_t n, const Iterator& iter) noexcept {
+  auto copy = iter;
+  copy.index += static_cast<size_t>(n);
+  return copy;
+}
+
+/// Advance and modify n positions in the iterator.
+constexpr Iterator& Iterator::operator+=(difference_type n) noexcept {
+  this->index += static_cast<size_t>(n);
+  return *this;
+}
+
+/// Goes back n position in the iterator.
+constexpr Iterator Iterator::operator-(difference_type n) const noexcept {
+  Iterator copy = *this;
+  copy.index -= static_cast<size_t>(n);
+  return copy;
+}
+
+/// Goes back n position and modify the iterator.
+constexpr Iterator& Iterator::operator-=(difference_type n) noexcept {
+  this->index -= static_cast<size_t>(n);
+  return *this;
+}
+
+/// Return the value in the n position.
+constexpr UTF8Symbol& Iterator::operator[](difference_type n) const noexcept { return *(*this + n); }
+
+/// Spaceship comparison of the iterator.
+constexpr std::strong_ordering Iterator::operator<=>(const Iterator& other) const {
+  if (this->data != other.data) {
+    throw(std::runtime_error("Invalid comparison"));
+  }
+  if (this->index < other.index) {
+    return std::strong_ordering::less;
+  } else if (this->index > other.index) {
+    return std::strong_ordering::greater;
+  }
+  return std::strong_ordering::equal;
+}
+
+/// Return the difference between two iterators.
+constexpr std::ptrdiff_t Iterator::operator-(const Iterator& other) const {
+  if (this->data != other.data) {
+    throw(std::runtime_error("Different iterators pointers"));
+  }
+  return static_cast<std::ptrdiff_t>(other.index - this->index);
+}
+
+/// Easy access to a pointer to the iterated value.
+constexpr UTF8Symbol* Iterator::operator->() const noexcept { return &data->at(index); }
 
 #undef Iterator
 
