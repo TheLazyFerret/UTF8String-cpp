@@ -13,7 +13,27 @@ option(TESTING "Enable test compilations" OFF)
 # Create the compile_commands.json (mostly for clangd).
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(lib/)
+# Add the static library.
+add_library(UTF8String STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/utf8_string.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/utf8_symbol.cpp
+)
+
+# Mostly compile warnings.
+target_compile_options(UTF8String PRIVATE
+  -Wall
+  -Wextra
+  -pedantic
+)
+
+# Set the C++ version used for compiling.
+target_compile_features(UTF8String PRIVATE cxx_std_20)
+
+# Set the include directories.
+# One public, the other is the private implementation.
+target_include_directories(UTF8String
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 # Special rules for DEBUG builds.
 if (TESTING)
