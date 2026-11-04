@@ -7,6 +7,7 @@
 #include <string>
 
 using namespace utf8_string;
+using namespace utf8_string::fnv;
 
 /// Outputs in the stream the data.
 std::ostream& utf8_string::operator<<(std::ostream& os, const UTF8String& str) {
@@ -43,4 +44,17 @@ std::string UTF8String::to_string() const {
     result.insert(result.end(), aux, aux + symbol_data.second);
   }
   return result;
+}
+
+/// Hash a UTF8String using the FNV-1a algorithm.
+std::size_t std::hash<UTF8String>::operator()(const UTF8String& str) const noexcept {
+  std::size_t hash = (sizeof(std::size_t) == 4) ? OFFSET_32 : OFFSET_64;
+  for (const auto symbol : str) {
+    const auto symbol_data = symbol.data();
+    for (size_t i = 0; i < symbol_data.second; ++i) {
+      hash ^= static_cast<std::size_t>(symbol_data.first[i]);
+      hash *= (sizeof(std::size_t) == 4) ? PRIME_32 : PRIME_64;
+    }
+  }
+  return hash;
 }

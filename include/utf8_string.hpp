@@ -12,6 +12,7 @@
 #include "utf8_symbol.hpp"
 
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -19,6 +20,16 @@
 #include <vector>
 
 namespace utf8_string {
+
+namespace fnv {
+
+constexpr std::uint32_t OFFSET_32 = 0x811C9DC5;
+constexpr std::uint64_t OFFSET_64 = 0xCBF29CE484222325;
+
+constexpr std::uint32_t PRIME_32 = 0x01000193;
+constexpr std::uint64_t PRIME_64 = 0x00000100000001B3;
+
+}; // namespace fnv
 
 constexpr bool is_string_utf8_valid(std::string_view) noexcept;
 
@@ -281,3 +292,7 @@ constexpr UTF8String UTF8String::substr(size_t pos, size_t count) const {
 }
 
 } // namespace utf8_string
+
+template <> struct std::hash<utf8_string::UTF8String> {
+  std::size_t operator()(const utf8_string::UTF8String&) const noexcept;
+};
