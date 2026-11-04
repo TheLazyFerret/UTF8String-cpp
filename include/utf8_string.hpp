@@ -232,20 +232,18 @@ constexpr UTF8String& operator+=(UTF8String& lhs, UTF8Symbol rhs) {
 
 /// Find the substring str in the caller instance.
 constexpr size_t UTF8String::find(const UTF8String& str, size_t pos) const noexcept {
-  if (str.size() + pos > this->size()) {
+  if (pos > size() - str.size()) {
     return npos;
-  } else if (str.empty() && empty()) {
-    return 0;
+  } else if (str.empty()) {
+    return (pos <= size()) ? pos : npos;
+  } else if (pos >= size()) {
+    return npos;
   }
   for (size_t i = pos; i < this->size(); ++i) {
-    if (str.size() + i > this->size()) {
-      return npos;
-    }
     for (size_t j = 0; j < str.size(); ++j) {
       if (at(i + j) != str[j]) {
         break;
-      }
-      if (j == str.size() - 1) {
+      } else if (j == str.size() - 1) {
         return i;
       }
     }
