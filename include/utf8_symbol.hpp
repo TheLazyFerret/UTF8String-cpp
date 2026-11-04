@@ -2,11 +2,14 @@
 //! This header is also included by utf8_string.hpp, but can be used standalone.
 //! One of my objetives is also to be as much constexpr and allocation free as I can.
 //! Also, it is guaranteed that always will point to a valid UTF8 character.
+//! 
+//! Header only library, mostly constexpr thanks c++20.
 
 #pragma once
 
 #include <array>
 #include <cassert>
+#include <cctype>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -76,8 +79,8 @@ public:
   constexpr std::pair<std::array<char8_t, UTF8_SYMBOL_SIZE>, size_t> data() const noexcept;
   constexpr std::vector<char8_t> data_vec() const noexcept;
 
-  friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
-  friend std::istream& operator>>(std::istream&, UTF8Symbol&);
+  inline friend std::ostream& operator<<(std::ostream&, const UTF8Symbol&);
+  inline friend std::istream& operator>>(std::istream&, UTF8Symbol&);
 
   constexpr friend bool operator==(const UTF8Symbol&, const UTF8Symbol&) noexcept;
   constexpr friend bool operator!=(const UTF8Symbol&, const UTF8Symbol&) noexcept;
@@ -256,6 +259,60 @@ constexpr bool is_symbol_utf8_valid(char src) noexcept {
     return false;
   }
   return true;
+}
+
+/// Send to the stream the useful bytes inside the object.
+inline std::ostream& operator<<(std::ostream& os, const UTF8Symbol& symbol) {
+  for (size_t i = 0; i < static_cast<size_t>(symbol.size); ++i) {
+    os << static_cast<char>(symbol.inner_data[i]);
+  }
+  return os;
+}
+
+/// Attempt to build a UTF8Symbol from the
+inline std::istream& operator>>(std::istream& is, UTF8Symbol& symbol) {
+  std::array<char8_t, UTF8_SYMBOL_SIZE> buffer;
+  char aux;
+  size_t byte_size = 0;
+  // Extract character until find the first byte of the UTF-8 secuence.
+  // Discard any whitespace character.
+  // Return (with the fail and/or eof bit enabled) if find an error.
+  while (true) {
+    aux = is.get();
+    if (is.fail() || is.eof()) {
+      return is;
+    } else if (std::isspace(aux)) {
+      continue;
+    }
+    // Parse the first byte. To know the size of the UTF8 symbol.
+    const auto aux_size = bytes_of_utf8(aux);
+    if (aux_size <= 0) {
+      is.setstate(std::ios::failbit);
+      return is;
+    }
+    byte_size = static_cast<size_t>(aux_size);
+    break;
+  }
+  assert(byte_size <= buffer.size());
+  buffer[0] = static_cast<char8_t>(aux);
+  // Once the first byte is parsed, we attempt to extract the rest of the bytes.
+  for (size_t i = 1; i < byte_size; ++i) {
+    aux = is.get();
+    if (is.fail() || is.eof()) {
+      return is;
+    }
+    // Check if this byte is a correctly encoded.
+    if (test_8byte(static_cast<char8_t>(aux), NF_BYTE_MASK, NF_BYTE_RESULT)) {
+      buffer[i] = static_cast<char8_t>(aux);
+    } else {
+      is.setstate(std::ios::failbit);
+      return is;
+    }
+  }
+  // If everything went ok, update the UTF8Symbol and return.
+  symbol.inner_data = buffer;
+  symbol.size = byte_size;
+  return is;
 }
 
 } // namespace utf8_string
