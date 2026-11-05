@@ -8,6 +8,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "hidden": true,
       "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CXX_COMPILER": "clang++"
       }
     },

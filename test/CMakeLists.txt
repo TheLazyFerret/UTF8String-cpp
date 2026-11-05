@@ -5,7 +5,7 @@ add_executable(UTF8String_test ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
 # Also link the Boost module for testing.
 target_link_libraries(UTF8String_test PRIVATE
   Boost::unit_test_framework
-  UTF8String
+  ${PROJECT_NAME}
 )
 
 target_compile_features(UTF8String_test PRIVATE cxx_std_20)
@@ -16,8 +16,8 @@ add_test(NAME UTF8StringTest
 )
 
 # Special custom executable for testing performance and other things.
-add_executable(UTF8String_performance 
+add_executable(UTF8String_performance
   ${CMAKE_CURRENT_SOURCE_DIR}/performance_test.cpp
 )
-target_link_libraries(UTF8String_performance PRIVATE UTF8String)
+target_link_libraries(UTF8String_performance PRIVATE ${PROJECT_NAME})
 target_compile_features(UTF8String_performance PRIVATE cxx_std_20)
