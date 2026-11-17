@@ -1,5 +1,18 @@
 # Instalation
 
+## Requirements
+
+Obligatory:
+
+- A c++ compiler (tested with [clang](https://clang.llvm.org/)) with atleast `cxx_std >= 20`.
+- Cmake with atleast the version `3.30`.
+
+Optional:
+
+- [`Boost.Test`](https://www.boost.org/library/latest/test/) for run the tests.
+
+## Traditional installation
+
 First you will need to retrieve the source code.
 For doing so, just git clone the latest commit in main branch.
 
@@ -41,8 +54,10 @@ include(FetchContent)
 FetchContent_Declare(
     UTF8String
     GIT_REPOSITORY https://github.com/TheLazyFerret/UTF8String-cpp.git
-    GIT_TAG main
+    GIT_TAG 0.1.0
 )
 
 FetchContent_MakeAvailable(UTF8String)
 ```
+
+After this, the library should be avaible for your project.
