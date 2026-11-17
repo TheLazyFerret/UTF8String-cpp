@@ -19,7 +19,7 @@ constexpr std::string_view STR = "⎼❏⮢◅⬰⑄⃬ⱋ⩸⁐⋅≡➚⋣⠕�
 
 consteval size_t calculate(std::string_view str) {
   const UTF8String aux(str);
-  return aux.utf8_byte_size();
+  return aux.size();
 }
 
 int main() {
