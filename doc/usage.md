@@ -12,33 +12,6 @@ add_executable(my_executable main.cpp)
 target_link_libraries(my_executable PRIVATE UTF8String::UTF8String)
 ```
 
-## Quick start
-
-```cpp
-//! Small program that calculates the number of UTF8 symbols in a string at compile time.
-
-#include <iostream>
-#include <string_view>
-#include <cstdlib>
-
-#include "utf8_string.hpp"
-
-using namespace utf8_string;
-
-constexpr std::string_view STR = "⎼❏⮢◅⬰⑄⃬ⱋ⩸⁐⋅≡➚⋣⠕⯂┽⡶⸞⠣ⲡ‾⯨⠡⻚♋⟼⓪❣ⲱ♦⟭Ɀ⽊";
-
-consteval size_t calculate(std::string_view str) {
-  const UTF8String aux(str);
-  return aux.utf8_byte_size();
-}
-
-int main() {
-  std::cout << calculate(STR) << std::endl;
-  return EXIT_SUCCESS;
-}
-
-```
-
 ## Library usage
 
 All the library is inside the namespace `utf8_string`. There should not be collisions with std, so you can:
