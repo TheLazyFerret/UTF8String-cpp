@@ -90,7 +90,7 @@ The most expensive operation is the decodification of the original string. So if
 
 Some implemented algorithms (like `UTF8String::find(const UTF8String&)`) are not the most optimal options. Although I am trying to find better solutions :>
 
-This class also has overriden `std::hash`, so it is compatible with std containers like `std::unordered_set` or `std::unordered_map`.
+This class also has overriden `std::hash` _(using the FNV-1a algorithm)_ and for `std::format` (relying in the formatter of `std::string`).
 
 ## Example
 
