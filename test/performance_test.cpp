@@ -78,13 +78,10 @@ void performance_test() {
 
 #undef TEST
 
-consteval size_t calculate_utf8_size(std::string_view msg) {
-  return UTF8String(msg).utf8_byte_size();
-}
+consteval size_t calculate_utf8_size(std::string_view msg) { return UTF8String(msg).utf8_byte_size(); }
 
 int main() {
   std::cout << "unicode string size: " << calculate_utf8_size(unicode_500) << std::endl;
   performance_test();
   return EXIT_SUCCESS;
-  
 }

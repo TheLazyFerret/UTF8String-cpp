@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <format>
 
 constexpr std::string_view EXAMPLE_UNICODE = "ඞ";
 constexpr char EXAMPLE_ASCII = 'a';
@@ -149,4 +150,10 @@ BOOST_AUTO_TEST_CASE(UTF8String_substr) {
   BOOST_TEST(str.substr(1) == substr1);
   BOOST_TEST(str.substr(1, 3) == substr2);
   BOOST_TEST(str.substr(1, 1) == substr3);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8String_format) {
+  std::string a(EXAMPLE_UNICODE);
+  const UTF8String str(a);
+  BOOST_TEST(std::format("{}", str) == a);
 }
