@@ -6,5 +6,5 @@ UseTab: "Never"
 BreakBeforeBraces: "Attach"
 ColumnLimit: 120
 PointerAlignment: "Left"
-AlignAfterOpenBracket: false
+AlignAfterOpenBracket: "DontAlign"
 AllowAllParametersOfDeclarationOnNextLine: true
