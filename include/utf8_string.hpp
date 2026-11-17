@@ -13,6 +13,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -295,4 +296,11 @@ constexpr UTF8String UTF8String::substr(size_t pos, size_t count) const {
 
 template <> struct std::hash<utf8_string::UTF8String> {
   std::size_t operator()(const utf8_string::UTF8String&) const noexcept;
+};
+
+/// Reuses the formatter of std::string, instead of reinvent the wheel.
+template <> struct std::formatter<utf8_string::UTF8String> : std::formatter<std::string> {
+  auto format(const utf8_string::UTF8String& str, std::format_context& ctx) const {
+    return std::formatter<std::string>::format(str.to_string(), ctx);
+  }
 };
