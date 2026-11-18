@@ -157,3 +157,21 @@ BOOST_AUTO_TEST_CASE(UTF8String_format) {
   const UTF8String str(a);
   BOOST_TEST(std::format("{}", str) == a);
 }
+
+BOOST_AUTO_TEST_CASE(UTF8String_rfind_str) {
+  const std::string a("⨷⇴◁⚵aaa⨷⇴◁⚵");
+  const UTF8String str(a);
+  const size_t pos_1 = str.rfind(UTF8String("⨷⇴◁⚵"));
+  const size_t pos_2 = str.rfind(UTF8String("⨷⇴◁⚵"), 6);
+  BOOST_TEST(pos_1 == 7);
+  BOOST_TEST(pos_2 == 0);
+}
+
+BOOST_AUTO_TEST_CASE(UTF8String_rfind_symbol) {
+  const std::string a("⨷⇴◁⚵aaa⨷⇴◁⚵");
+  const UTF8String str(a);
+  const size_t pos_1 = str.rfind(UTF8Symbol("a"), 7);
+  const size_t pos_2 = str.rfind(UTF8Symbol("a"), 2);
+  BOOST_TEST(pos_1 == 6);
+  BOOST_TEST(pos_2 == UTF8String::npos);
+}
