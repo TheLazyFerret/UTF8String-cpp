@@ -76,8 +76,10 @@ public:
   constexpr UTF8String& append(UTF8Symbol);
 
   // Search methods.
-  constexpr size_t find(const UTF8String& src, size_t pos = 0) const noexcept;
+  constexpr size_t find(const UTF8String& str, size_t pos = 0) const noexcept;
   constexpr size_t find(UTF8Symbol symbol, size_t pos = 0) const noexcept;
+  constexpr size_t rfind(const UTF8String& str, size_t pos = npos) const noexcept;
+  constexpr size_t rfind(UTF8Symbol symbol, size_t pos = npos) const noexcept;
 
   // Iterator methods.
   constexpr auto begin() noexcept { return inner_data.begin(); }
@@ -318,6 +320,42 @@ constexpr size_t UTF8String::find(UTF8Symbol symbol, size_t pos) const noexcept 
     if (at(i) == symbol) {
       return i;
     }
+  }
+  return npos;
+}
+
+/// Do a reverse find, applying the kmp algorithm and then searching the first coincidence with initial_pos <= pos;
+constexpr size_t UTF8String::rfind(const UTF8String& str, size_t pos) const noexcept {
+  // Algorithm exceptions handling.
+  if (str.empty()) {
+    return (pos <= size()) ? pos : npos;
+  } else if (str.length() > length()) {
+    return npos;
+  }
+
+  const auto res = kmp_alg(*this, str);
+  if (res.empty()) {
+    return npos;
+  }
+  // Iterate through all find (from right to left) and return the first coincidence with initial_pos <= pos.
+  for (auto riter = res.rbegin(); riter != res.rend(); ++riter) {
+    if (*riter <= pos) {
+      return *riter;
+    }
+  }
+  // No match found with initial_pos <= pos.
+  return npos;
+}
+
+/// Do a simple right to left symbol search.
+constexpr size_t UTF8String::rfind(UTF8Symbol symbol, size_t pos) const noexcept {
+  int i = (pos >= length()) ? length() - 1 : pos;
+  while (i >= 0) {
+    const size_t aux = static_cast<size_t>(i);
+    if (this->at(aux) == symbol) {
+      return aux;
+    }
+    --i;
   }
   return npos;
 }
