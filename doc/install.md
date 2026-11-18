@@ -11,7 +11,25 @@ Optional:
 
 - [`Boost.Test`](https://www.boost.org/library/latest/test/) for run the tests.
 
-## Traditional installation
+## Using FetchContent (preferred)
+
+In the cmake of your project, place the next code (After the `project` command):
+
+```cmake
+include(FetchContent)
+
+FetchContent_Declare(
+    UTF8String
+    GIT_REPOSITORY https://github.com/TheLazyFerret/UTF8String-cpp.git
+    GIT_TAG 0.1.0
+)
+
+FetchContent_MakeAvailable(UTF8String)
+```
+
+After this, the library should be avaible for your project. Remember compile with optimizations for release builds.
+
+## Alternative traditional installation
 
 First you will need to retrieve the source code.
 For doing so, just git clone the latest commit in main branch.
@@ -42,22 +60,4 @@ cmake --install build/release --prefix ./install
 
 ## Uninstallation
 
-For uninstalling the library, just remove the copied files. You can see the list in the generated `install_manifest.txt` file inside the build directory.
-
-## Alternative to traditional install (using FetchContent)
-
-In the cmake of your project, place the next code (After the `project` command):
-
-```cmake
-include(FetchContent)
-
-FetchContent_Declare(
-    UTF8String
-    GIT_REPOSITORY https://github.com/TheLazyFerret/UTF8String-cpp.git
-    GIT_TAG 0.1.0
-)
-
-FetchContent_MakeAvailable(UTF8String)
-```
-
-After this, the library should be avaible for your project.
+For uninstalling the library, just remove the copied files. You can see the list in the generated `install_manifest.txt` file inside the `build/release` directory.
