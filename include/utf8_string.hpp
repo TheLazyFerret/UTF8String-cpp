@@ -113,6 +113,9 @@ public:
 private:
   constexpr static std::vector<UTF8Symbol> decode_str(std::string_view);
 
+  constexpr static std::vector<size_t> construct_lps(const UTF8String&);
+  constexpr static std::vector<size_t> kmp_alg(const UTF8String&, const UTF8String&, size_t pos = 0);
+
   std::vector<UTF8Symbol> inner_data;
 };
 
@@ -242,25 +245,71 @@ constexpr UTF8String& operator+=(UTF8String& lhs, UTF8Symbol rhs) {
   return lhs;
 }
 
-/// Find the substring str in the caller instance.
-constexpr size_t UTF8String::find(const UTF8String& str, size_t pos) const noexcept {
-  if (pos > size() - str.size()) {
-    return npos;
-  } else if (str.empty()) {
-    return (pos <= size()) ? pos : npos;
-  } else if (pos >= size()) {
-    return npos;
-  }
-  for (size_t i = pos; i < this->size(); ++i) {
-    for (size_t j = 0; j < str.size(); ++j) {
-      if (at(i + j) != str[j]) {
-        break;
-      } else if (j == str.size() - 1) {
-        return i;
+/// Auxiliar function to construct the table for the find algorithm.
+constexpr std::vector<size_t> UTF8String::construct_lps(const UTF8String& str) {
+  size_t len = 0;
+  std::vector<size_t> lps(str.size());
+
+  lps[0] = 0;
+  size_t i = 1;
+  while (i < str.size()) {
+    if (str[i] == str[len]) {
+      len += 1;
+      lps[i] = len;
+      i += 1;
+    } else {
+      if (len != 0) {
+        len = lps[len - 1];
+      } else {
+        lps[i] = 0;
+        i += 1;
       }
     }
   }
-  return npos;
+  return lps;
+}
+
+/// Traditional kmp algorithm implementation.
+constexpr std::vector<size_t> UTF8String::kmp_alg(const UTF8String& str, const UTF8String& pat, size_t pos) {
+  const size_t n = str.length();
+  const size_t m = pat.length();
+  std::vector<size_t> lps = construct_lps(pat);
+  std::vector<size_t> res;
+  size_t i = pos;
+  size_t j = 0;
+  while (i < n) {
+    if (str[i] == pat[j]) {
+      i += 1;
+      j += 1;
+      if (j == m) {
+        res.push_back(i - j);
+        j = lps[j - 1];
+      }
+    } else {
+      if (j != 0) {
+        j = lps[j - 1];
+      } else {
+        i += 1;
+      }
+    }
+  }
+  return res;
+}
+
+/// Find the substring str in the caller instance.
+constexpr size_t UTF8String::find(const UTF8String& str, size_t pos) const noexcept {
+  // Algorithm exceptions handling.
+  if (str.empty()) {
+    return (pos <= size()) ? pos : npos;
+  } else if (pos > size() || str.size() > size() - pos) {
+    return npos;
+  }
+  const auto res = kmp_alg(*this, str, pos);
+  if (res.empty()) {
+    return npos;
+  } else {
+    return res.front();
+  }
 }
 
 /// Find the symbol in the UTF8String.
