@@ -21,7 +21,7 @@ include(FetchContent)
 FetchContent_Declare(
     UTF8String
     GIT_REPOSITORY https://github.com/TheLazyFerret/UTF8String-cpp.git
-    GIT_TAG 0.1.0
+    GIT_TAG 0.2.0
 )
 
 FetchContent_MakeAvailable(UTF8String)
